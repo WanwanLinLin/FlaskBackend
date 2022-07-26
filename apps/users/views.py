@@ -1,17 +1,25 @@
 # -*- coding: utf-8 -*-
 # -*- coding: utf-8 -*-
 import json
+
+import jwt
 import requests
+
+from jwt import exceptions
+from apps import create_jwt, login_required
+from apps.db import r
+from apps.error import ApiError
 from .models import User
-from .validate import LoginValidate, RegisterValidate
-from flask import Blueprint, jsonify, request
+from .validate import LoginValidate, RegisterValidate, EditMaterial
+from flask import Blueprint, jsonify, request, g
 from pydantic import error_wrappers
-from flask_login import login_required, logout_user
+# from flask_login import login_required, logout_user
 
 bp = Blueprint("users", __name__)
 
 
 @bp.route("/login", methods=["GET", "POST"])
+@login_required
 def login():
     try:
         LoginValidate(**request.get_json())
@@ -20,6 +28,9 @@ def login():
     else:
         username = request.json.get("username")
         password = request.json.get("password")
+
+        token_jwt = create_jwt(username, password)
+        r.setex(username, 60*60, token_jwt)
 
         user = User.find_one({"username": username, "password": password})
         print(user)
@@ -56,9 +67,22 @@ def register():
 # 修改用户资料
 @bp.route("/edit_material")
 def edit_material():
-    username = request.json.get("username")
-    password = request.json.get("password")
-    email = request.json.get("email")
+    try:
+        EditMaterial(**request.get_json())
+    except error_wrappers.ValidationError as e:
+        print(e)
+        return e.json()
+    else:
+        username = request.json.get("username")
+        phone_number = request.json.get("phone_number")
+        email = request.json.get("email")
 
+        User.update_one({"username": username}, {"$set": {"username"}})
 
     return jsonify({"msg": "用户信息修改成功!"})
+
+
+@bp.route("/edit_password")
+def edit_password():
+
+    return jsonify({})

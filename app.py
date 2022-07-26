@@ -7,6 +7,8 @@ from apps.users import bp as users_bp
 from apps.trades import bp as trades_bp
 from apps.goods import bp as goods_bp
 from apps.extension import init_swagger
+from flask_login import LoginManager
+login_manager = LoginManager()
 
 # 连接数据库
 # client = pymongo.MongoClient("mongodb://localhost/", 27017)
@@ -19,8 +21,28 @@ app = Flask(__name__)
 app.serect_key = "SERECT"
 cache = Cache(config={"CACHE_TYPE": "SimpleCache"})
 cache.init_app(app)
-init_swagger(app)
 
+
+@login_manager.user_loader
+def load_user(username):
+    """
+        使用Flask Login 必须创建一个user_loader回调函数来根据session中取回的user ID（unicode） 取得user对象，ID 无效应返回None
+        :param username: unicode ID
+        :return: 用户对象或None
+        """
+    from apps.users import User
+    try:
+        user = User.find_one({"username": username})
+    except Exception:
+        user = None
+    return user
+
+
+login_manager.init_app(app)
+
+# 处理中文编码
+app.config["JSON_AS_ASCII"] = False
+init_swagger(app)
 
 
 # 注册蓝图
