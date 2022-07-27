@@ -26,9 +26,8 @@ cache.init_app(app)
 @login_manager.user_loader
 def load_user(username):
     """
-        使用Flask Login 必须创建一个user_loader回调函数来根据session中取回的user ID（unicode） 取得user对象，ID 无效应返回None
-        :param username: unicode ID
-        :return: 用户对象或None
+        使用Flask Login 必须创建一个user_loader回调函数来根据session中取回的user ID（unicode）
+        取得user对象，ID 无效应返回None
         """
     from apps.users import User
     try:

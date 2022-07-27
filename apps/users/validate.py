@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 
+from flask import g
 from .models import User
 from typing import List, Optional
 from pydantic import BaseModel, ValidationError, validator
@@ -8,7 +9,7 @@ from pydantic import BaseModel, ValidationError, validator
 
 class LoginValidate(BaseModel):
     username: str
-    password: int
+    password: str
 
     @validator("username")
     def three_fifteen(cls, v):
@@ -18,21 +19,21 @@ class LoginValidate(BaseModel):
 
     @validator("password")
     def three_twenty(cls, v):
-        if len(str(v)) < 3 or len(str(v)) > 20:
+        if len(v) < 3 or len(v) > 20:
             raise ValueError('密码过长或过短!')
         return v
 
 
 class RegisterValidate(BaseModel):
     username: str
-    password: int
+    password: str
     name: str
     age: int
     wallet_address: str
 
     @validator("password")
     def three_twenty(cls, v):
-        if len(str(v)) < 3 or len(str(v)) > 20:
+        if len(v) < 3 or len(v) > 20:
             raise ValueError('密码过长或过短!')
         return v
 
@@ -53,9 +54,9 @@ class RegisterValidate(BaseModel):
 
 
 class EditMaterial(BaseModel):
-    username: str
-    phone_number: int
-    email: str
+    username: Optional[str]
+    phone_number: Optional[int]
+    email: Optional[str]
 
     @validator("username")
     def no_repeated(cls, v):
@@ -68,7 +69,7 @@ class EditMaterial(BaseModel):
 
     @validator("phone_number")
     def match_phone_number(cls, v):
-        ret = re.match(r'(?<=\D)1[34789]\d{9}', v)
+        ret = re.match(r'^1[356789]\d{9}$', str(v))
         if not ret:
             raise ValueError("抱歉，手机号格式不正确!")
         return v
@@ -80,4 +81,48 @@ class EditMaterial(BaseModel):
             raise ValueError("抱歉，邮箱号格式不正确！")
         return v.title()
 
+
+class EditPassword(BaseModel):
+    password_old: str
+    password_new: str
+    password_new_confirm: str
+
+    @validator("password_old")
+    def val_password_old(cls, v):
+        user = User.find_one({"username": g.username})
+        if user["password"] != v:
+            raise ValueError("抱歉！旧密码不匹配！")
+        return v.title()
+
+    @validator("password_new")
+    def val_password_new(cls, v):
+        if len(v) < 3 or len(v) > 20:
+            raise ValueError('密码过长或过短!')
+        return v
+
+    @validator("password_new_confirm")
+    def match_password_edit(cls, v, values, **kwargs):
+        if "password_new" in values and v != values["password_new"]:
+            raise ValueError("抱歉，新密码与确认密码不匹配！！")
+        return v
+
+
+class ShippingAddress(BaseModel):
+    customer_name: Optional[str]
+    shipping_address: Optional[str]
+    customer_number: Optional[int]
+    id: Optional[int]
+
+    @validator("customer_name")
+    def val_customer_name(cls, v):
+        if len(v) < 3 or len(v) > 15:
+            raise ValueError("抱歉，用户名过长或过短！")
+        return v.title()
+
+    @validator("customer_number")
+    def val_customer_number(cls, v):
+        ret = re.match(r'^1[356789]\d{9}$', str(v))
+        if not ret:
+            raise ValueError("抱歉，手机号格式不正确!")
+        return v
 
