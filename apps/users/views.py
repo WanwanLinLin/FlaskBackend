@@ -18,6 +18,7 @@ from pydantic import error_wrappers
 bp = Blueprint("users", __name__)
 
 
+# 登录
 @bp.route("/login", methods=["GET", "POST"])
 @login_required
 def login():
@@ -30,7 +31,7 @@ def login():
         password = request.json.get("password")
         user = User.find_one({"username": username, "password": password})
         print(user)
-        print("g.username 的值是2：", g.username )
+        print("g.username 的值是2：", g.username)
         if g.username != username:
             return jsonify({"err": "抱歉，Token 认证失败！"})
 
@@ -42,6 +43,7 @@ def login():
     return jsonify({"msg": "查无此人"})
 
 
+# 注册
 @bp.route("/register/", methods=["GET", "POST"])
 def register():
     try:

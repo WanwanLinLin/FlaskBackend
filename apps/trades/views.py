@@ -5,7 +5,6 @@ from functools import wraps
 from .models import Orders, Portfolios, NFT_list, Comments, Portfolios_like
 from apps.goods import Goods
 from flask import Blueprint, jsonify, request
-
 # 创建 “我的交易” 蓝图
 bp = Blueprint("trades", __name__)
 

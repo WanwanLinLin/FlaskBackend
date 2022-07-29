@@ -8,6 +8,7 @@ from apps.trades import bp as trades_bp
 from apps.goods import bp as goods_bp
 from apps.extension import init_swagger
 from flask_login import LoginManager
+from flask_cors import CORS
 login_manager = LoginManager()
 
 # 连接数据库
@@ -18,9 +19,11 @@ login_manager = LoginManager()
 
 app = Flask(__name__)
 
+CORS(app, supports_credentials=True)
 app.serect_key = "SERECT"
 cache = Cache(config={"CACHE_TYPE": "SimpleCache"})
 cache.init_app(app)
+
 
 
 @login_manager.user_loader
@@ -56,4 +59,4 @@ def hello():
 
 
 if __name__ == '__main__':
-    app.run(port=8888)
+    app.run(port=8000)
