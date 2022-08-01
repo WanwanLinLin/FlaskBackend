@@ -9,6 +9,10 @@ from apps.goods import bp as goods_bp
 from apps.extension import init_swagger
 from flask_login import LoginManager
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+from apps import db, init_database
+# from apps.goods import category_list_db
+
 login_manager = LoginManager()
 
 # 连接数据库
@@ -23,7 +27,7 @@ CORS(app, supports_credentials=True)
 app.serect_key = "SERECT"
 cache = Cache(config={"CACHE_TYPE": "SimpleCache"})
 cache.init_app(app)
-
+init_database(app)
 
 
 @login_manager.user_loader
@@ -59,4 +63,6 @@ def hello():
 
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(port=8000)

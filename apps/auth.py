@@ -2,7 +2,7 @@
 import jwt
 import datetime
 import functools
-from apps.db import r
+from apps.nosql_db import r
 from jwt import exceptions
 from apps.error import ApiError
 from functools import wraps

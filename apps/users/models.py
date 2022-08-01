@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import redis
-from apps.db import client
-from apps.db import pool
+from apps.nosql_db import client
+from apps.nosql_db import pool
 
 
 # 登录注册集合

@@ -6,7 +6,7 @@ import requests
 
 from jwt import exceptions
 from apps import create_jwt, login_required
-from apps.db import r
+from apps.nosql_db import r
 from apps.error import ApiError
 from .models import User, Shipping_address
 from .validate import (LoginValidate, RegisterValidate, EditMaterial, EditPassword,

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import time
-from apps.db import client
+from apps.nosql_db import client
 
 # 订单集合
 Orders = client.trade.orders
