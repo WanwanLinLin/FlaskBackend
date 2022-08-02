@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
-import pymongo, redis
+# 初始化并使用 postgresql
 
-client = pymongo.MongoClient("mongodb://localhost/", 27017)
-pool = redis.ConnectionPool(host="127.0.0.1", port=6379, db=3, decode_responses=True)
+from flask_sqlalchemy import SQLAlchemy
 
-# 连接 redis 数据库
-r = redis.Redis(connection_pool=pool)
+db = SQLAlchemy(session_options={"expire_on_commit": False})
+
+
+def init_database(app):
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:linwan@localhost:5432/Flask_Vue'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    db.init_app(app)
