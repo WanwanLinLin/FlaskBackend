@@ -6,6 +6,12 @@ from apps import db
 # 订单集合
 Goods = client.goods.Goods
 
+# 商品分类详情集合
+Goods_se = client.goods.Goods_se
+
+# 某个商品的属性集合
+Goods_se_attrs = client.goods.Goods_se_attrs
+
 
 # 一级商品列表模型
 class CategoryListModel(db.Model):
