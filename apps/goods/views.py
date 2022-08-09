@@ -68,8 +68,6 @@ def get_base_category_list():
 @bp.route("/list", methods=["GET", "POST"])
 def list_():
     try:
-        # print("这里执行了——1")
-
         VaListModel(**request.get_json())
     except error_wrappers.ValidationError as e:
         print(e)
@@ -77,7 +75,6 @@ def list_():
     else:
         X = request.get_json()
         print("request.get_json()的值是：", X)
-        # print("这里执行了——2")
         trademark_list = []
         attrs_list = []
         goods_list = []
@@ -89,10 +86,11 @@ def list_():
         keyword = request.json.get("keyword")
         props = request.json.get("props")
         trademark = request.json.get("trademark")
+        # 下面这三个参数都是有默认值的(由前端决定)
         order = request.json.get("order")
         page_no = request.json.get("pageNo")
         page_size = request.json.get("pageSize")
-        # print("props的唯一唯一值是: ", props)
+        print("props的值是：", props)
 
         # 第一种情况：设置默认页面
         if not category1_id and not category2_id and not category3_id and not category3_id and \
@@ -116,7 +114,19 @@ def list_():
             # 首页默认分页效果
             limit_start = (page_no - 1) * page_size
             page_total = int(math.ceil(len(goods_list) / page_size))
+            total = len(goods_list)
             goods_list = goods_list[limit_start:page_no * page_size]
+
+            # 处理order参数
+            if order == "1:asc":
+                goods_list = sorted(goods_list, key=lambda goods_list: goods_list["hotScore"])
+            elif order == "1:desc":
+                goods_list = sorted(goods_list, key=lambda goods_list: goods_list["hotScore"], reverse=True)
+            elif order == "2:asc":
+                goods_list = sorted(goods_list, key=lambda goods_list: goods_list["price"])
+            else:
+                goods_list = sorted(goods_list, key=lambda goods_list: goods_list["price"], reverse=True)
+
             return jsonify({
                 "code": 200,
                 "message": "成功",
@@ -124,7 +134,7 @@ def list_():
                     "trademarkList": trademark_list,
                     "attrsList": attrs_list,
                     "goodsList": goods_list,
-                    "total": len(goods_list),
+                    "total": total,
                     "pageSize": page_size,
                     "pageNo": page_no,
                     "totalPages": page_total
@@ -158,7 +168,6 @@ def list_():
             all_info_2 = list(Goods_se.find({"category3Id": category3_id,
                                              "category3Name": category_name},
                                             {"_id": 0}))
-        # print(all_info_2, "\n")
 
         if all_info_2 and keyword:
             # 这是对应同时使用三级类目导航和keyword导航的情况的情况
@@ -201,7 +210,7 @@ def list_():
 
         else:
             all_info_4 = list(Goods_se.find({}, {"_id": 0}))
-            attrs_info = list(Goods_se_attrs.find({}, {"_id": 0, "connect_name": 0}))
+            # attrs_info = list(Goods_se_attrs.find({}, {"_id": 0, "connect_name": 0}))
             # print(attrs_info, "\n")
             for x in all_info_4:
                 trademark_list.append({"tmId": x["tmId"], "tmName": x["tmName"]})
@@ -211,21 +220,32 @@ def list_():
             for x_ in all_info_4:
                 attrs_list = list(Goods_se_attrs.find({"connect_name": x_["tmName"]}, {"_id": 0, "connect_name": 0}))
                 goods_list.append(x_)
-        print(goods_list, "\n")
-
-        # 采用切片方式方便分页
-        goods_list = goods_list[limit_start:page_no * page_size]
-        # print("goods_list的值是：", goods_list)
 
         # 处理props参数
+        # （初稿：暂时保留）
+        # if props:
+        #     props_list = []
+        #     for x in props:
+        #         for z in goods_list:
+        #             if x in z["attrs"]:
+        #                 if z not in props_list:
+        #                     props_list.append(z)
+        #     goods_list = props_list
+        #
         if props:
             props_list = []
             for x in props:
+                x = x.split(":")
                 for z in goods_list:
-                    if x in z["attrs"]:
-                        if z not in props_list:
-                            props_list.append(z)
+                    for z_ in z["attrs"]:
+                        z_ = list(z_.split(":"))
+                        if x[1] == z_[1] and x[2] == z_[2]:
+                            if z not in props_list:
+                                props_list.append(z)
             goods_list = props_list
+        total = len(goods_list)
+        # 采用切片方式方便分页
+        goods_list = goods_list[limit_start:page_no * page_size]
 
         # 获取不重复的品牌数据
         trademark_list = [dict(t) for t in set([tuple(d.items()) for d in trademark_list])]
@@ -233,14 +253,25 @@ def list_():
         # 获取分页总数
         page_total = int(math.ceil(len(goods_list) / page_size))
 
-        return jsonify({
+        # 处理order参数
+        if order == "1:asc":
+            goods_list = sorted(goods_list, key=lambda goods_list: goods_list["hotScore"])
+        elif order == "1:desc":
+            goods_list = sorted(goods_list, key=lambda goods_list: goods_list["hotScore"], reverse=True)
+        elif order == "2:asc":
+            goods_list = sorted(goods_list, key=lambda goods_list: goods_list["price"])
+        else:
+            goods_list = sorted(goods_list, key=lambda goods_list: goods_list["price"], reverse=True)
+
+        # print(goods_list, "\n")
+    return jsonify({
             "code": 200,
             "message": "成功",
             "data": {
                 "trademarkList": trademark_list,
                 "attrsList": attrs_list,
                 "goodsList": goods_list,
-                "total": len(goods_list),
+                "total": total,
                 "pageSize": page_size,
                 "pageNo": page_no,
                 "totalPages": page_total
