@@ -12,6 +12,9 @@ Goods_se = client.goods.Goods_se
 # 某个商品的属性集合
 Goods_se_attrs = client.goods.Goods_se_attrs
 
+# 某个商品的详细信息的集合
+Goods_se_details = client.goods.Goods_se_details
+
 
 # 一级商品列表模型
 class CategoryListModel(db.Model):

@@ -4,7 +4,8 @@ import math
 from .validate import VaListModel
 from pydantic import error_wrappers
 from flask import Blueprint, jsonify, request
-from .models import Goods, Goods_se, Goods_se_attrs, CategoryListModel, SeCategoryListModel, ThCategoryListModel
+from .models import (Goods, Goods_se, Goods_se_attrs,
+                     Goods_se_details, CategoryListModel, SeCategoryListModel, ThCategoryListModel)
 
 bp = Blueprint("goods", __name__)
 
@@ -90,7 +91,6 @@ def list_():
         order = request.json.get("order")
         page_no = request.json.get("pageNo")
         page_size = request.json.get("pageSize")
-        print("props的值是：", props)
 
         # 第一种情况：设置默认页面
         if not category1_id and not category2_id and not category3_id and not category3_id and \
@@ -278,3 +278,26 @@ def list_():
             },
             "ok": True
         })
+
+
+# 获取商品详情的接口
+@bp.route("/item/<int:sku_id>", methods=["GET", "POST"])
+def item_detail(sku_id):
+    print(type(sku_id))
+    try:
+        l = list(Goods_se_details.find({"connect_goods_se_id": sku_id},
+                                       {"_id": 0, "spuId": 0, "connect_goods_se_id": 0}))[0]
+    except Exception as e:
+        return jsonify({
+            "code": 404,
+            "message": "该商品的数据详情页面不存在！",
+            "data": {},
+            "ok": False
+        })
+
+    return jsonify({
+        "code": 200,
+        "message": "成功",
+        "data": l,
+        "ok": True
+    })
