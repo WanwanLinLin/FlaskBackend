@@ -283,7 +283,6 @@ def list_():
 # 获取商品详情的接口
 @bp.route("/item/<int:sku_id>", methods=["GET", "POST"])
 def item_detail(sku_id):
-    print(type(sku_id))
     try:
         l = list(Goods_se_details.find({"connect_goods_se_id": sku_id},
                                        {"_id": 0, "spuId": 0, "connect_goods_se_id": 0}))[0]

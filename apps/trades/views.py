@@ -3,15 +3,16 @@ import time, binascii, os, math
 
 from functools import wraps
 from .models import Orders, Portfolios, NFT_list, Comments, Portfolios_like
-from apps.goods import Goods
+from apps.goods import Goods, Goods_se
 from flask import Blueprint, jsonify, request
+
 # 创建 “我的交易” 蓝图
 bp = Blueprint("trades", __name__)
 
 
-def create_token(lenth=24):
+def create_numbering(length=24):
     """创建一个token"""
-    s = binascii.b2a_base64(os.urandom(lenth))[:-1].decode('utf-8')
+    s = binascii.b2a_base64(os.urandom(length))[:-1].decode('utf-8')
     for x in ['+', '=', '/', '?', '&', '%', "#"]:
         s = s.replace(x, "")
     return s
@@ -40,56 +41,119 @@ def check_request2(one_dict):
 
 
 # 增加订单的接口
-@bp.route("/insert", methods=["GET", "POST"])
-@check_request2(one_dict={"goodsname": str, "num": int})
-def insert():
-    goods_name = request.json.get("goodsname")
-    num = request.json.get("num")
-
+@bp.route("/addToCart/<string:sku_id>/<string:sku_num>", methods=["GET", "POST"])
+def add_to_cart(sku_id, sku_num):
+    x_ = request.headers.get("userTempId")
     # 以下为数据库字段
-    goods = Goods.find_one({"goodsname": goods_name})
-    name = goods["goodsname"]
+    sku_id = int(sku_id)
+    sku_num = int(sku_num)
+    goods = Goods_se.find_one({"id": sku_id})
+    default_img = goods["defualtImg"]
+    # 订单表与商品表关联的id
+    connect_goods_se_id = goods["id"]
+    name = goods["title"]
     purchase_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     price = goods["price"]
-    payment = price * num
-    inventory = goods["inventory"] - num
-    order_number = create_token(8)
+    payment = price * sku_num
+    inventory = goods["inventory"] - sku_num
+    order_number = create_numbering(8)
     status = "To_Be_Delivered"
 
     # 更新货物的数量
-    Goods.update_one({"goodsname": goods_name},
-                     {"$set": {"inventory": inventory}})
+    Goods_se.update_one({"title": name},
+                        {"$set": {"inventory": inventory}})
 
-    Orders.insert_one({"purchase_time": purchase_time,
-                       "price": price,
-                       "payment": payment,
-                       "inventory": inventory,
-                       "status": status,
-                       "order_number": order_number,
-                       "name": name})
+    y_ = Orders.find_one({"name": name})
+    if y_:
+        # 根据前端要求，返回三种不同的状态
+        if sku_num == 1 or sku_num == -1 or sku_num == 0:
+            # 删除或增加商品数量时修改产品的总价格
+            payment = y_["payment"] + payment
+            # 删除或增加商品数量时修改产品的总数量
+            sku_num = y_["purchase_num"] + sku_num
+        else:
+            # 删除或增加商品数量时修改产品的总价格
+            payment = y_["payment"] + payment
+            # 删除或增加商品数量时修改产品的总数量
+            sku_num = y_["purchase_num"] + sku_num
 
-    return jsonify({"msg": "订单增加成功！"})
+        Orders.update_one({"name": name},
+                          {"$set": {"purchase_time": purchase_time,
+                                    "purchase_num": sku_num,
+                                    "price": price,
+                                    "payment": payment,
+                                    "inventory": inventory,
+                                    "userTempId": x_
+                                    }})
+    else:
+        Orders.insert_one({"purchase_time": purchase_time,
+                           "purchase_num": sku_num,
+                           "price": price,
+                           "payment": payment,
+                           "inventory": inventory,
+                           "status": status,
+                           "order_number": order_number,
+                           "name": name,
+                           "connect_goods_se_id": connect_goods_se_id,
+                           "userTempId": x_,
+                           "default_img": default_img,
+                           "isChecked": 0,
+                           "isOrdered": 0
+                           })
+
+    return jsonify({"code": 200,
+                    "message": "成功",
+                    "data": None,
+                    "ok": True
+                    })
 
 
-# 查询订单的接口
-@bp.route("/inquire", methods=["GET", "POST"])
-def inquire():
-    l = []
-    info = Orders.find({}, {"_id": 0})
+# 查询购物车中订单的接口
+@bp.route("/cartList", methods=["GET", "POST"])
+def cart_list():
+    x_ = request.headers.get("userTempId")
+    print(x_)
+    create_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+    data = [{"cartInfoList": [], "activityRuleList": None, "createTime": create_time}]
+    info = Orders.find({"userTempId": x_}, {"_id": 0, "userTempId": 0})
     for x in info:
-        l.append(x)
-    return jsonify({"All_orders": l})
+        data[0]["cartInfoList"].append(x)
+
+    return jsonify({
+        "code": 200,
+        "message": "成功",
+        "data": data,
+        "ok": True
+    })
 
 
 # 取消订单的接口
-@bp.route("/cancel_order", methods=["GET", "POST"])
-def cancel_order():
-    order_num = request.json.get("order_num")
-    if order_num:
-        info = Orders.find_one({"order_number": order_num})
-        Orders.delete_one(info)
-        return jsonify({"msg": "取消订单成功！"})
-    return jsonify({"err": "取消失败，没有此订单！"})
+@bp.route("/deleteCart/<string:sku_id>", methods=["DELETE"])
+def delete_cart(sku_id):
+    sku_id = int(sku_id)
+    info = Orders.find_one({"connect_goods_se_id": sku_id})
+    Orders.delete_one(info)
+    return jsonify({
+        "code": 200,
+        "message": "成功！！",
+        "data": None,
+        "ok": True
+    })
+
+
+# 切换订单中商品选中状态的接口
+@bp.route("/checkCart/<string:sku_id>/<string:is_checked>", methods=["GET", "POST"])
+def check_cart(sku_id, is_checked):
+    sku_id = int(sku_id)
+    is_checked = int(is_checked)
+    Orders.update_one({"connect_goods_se_id": sku_id}
+                      , {"$set": {"isChecked": is_checked}})
+    return jsonify({
+        "code": 200,
+        "message": "成功",
+        "data": None,
+        "ok": True
+    })
 
 
 # 展示作品的接口（实现了简单的分页功能）
@@ -107,7 +171,7 @@ def portfolios():
     if page < 0:
         return jsonify({"show_status": "It's not ok !"})
 
-    limit_start = (page-1)*page_per
+    limit_start = (page - 1) * page_per
 
     if name:
         result = list(Portfolios.find({"name": name}, {"_id": 0}).sort("id", 1).limit(page_per).skip(limit_start))
@@ -116,7 +180,7 @@ def portfolios():
         result = list(Portfolios.find({}, {"_id": 0}).sort("id", 1).limit(page_per).skip(limit_start))
         total = Portfolios.count_documents({})
 
-    page_total = int(math.ceil(total/page_per))
+    page_total = int(math.ceil(total / page_per))
     show_status = "It's OK!"
 
     print(result)
@@ -167,7 +231,7 @@ def nft_list():
 # 查看评论或添加评论的接口
 @bp.route("/get_comments", methods=["GET", "POST"])
 def get_comments():
-    if request.method == "GET":         # 查看评论
+    if request.method == "GET":  # 查看评论
         id = request.json.get("id")
         portfolios_name = request.json.get("name")
 
@@ -245,4 +309,3 @@ def get_portfolios_likes():
     print(total)
 
     return jsonify({"msg": "获取成功！", "total_likes": total})
-

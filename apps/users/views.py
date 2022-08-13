@@ -20,7 +20,7 @@ bp = Blueprint("users", __name__)
 
 # 登录
 @bp.route("/login", methods=["GET", "POST"])
-@login_required
+# @login_required
 def login():
     try:
         LoginValidate(**request.get_json())
@@ -31,9 +31,9 @@ def login():
         password = request.json.get("password")
         user = User.find_one({"username": username, "password": password})
         print(user)
-        print("g.username 的值是2：", g.username)
-        if g.username != username:
-            return jsonify({"err": "抱歉，Token 认证失败！"})
+        # print("g.username 的值是2：", g.username)
+        # if g.username != username:
+        #     return jsonify({"err": "抱歉，Token 认证失败！"})
 
         # 如果数据库真的有这个用户，就给ta创建对应的jwt_token
         if user:
