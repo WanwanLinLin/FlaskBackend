@@ -2,7 +2,7 @@
 import re
 
 from flask import g
-from .models import User
+from .models import User, r
 from typing import List, Optional
 from pydantic import BaseModel, ValidationError, validator
 
@@ -26,15 +26,33 @@ class LoginValidate(BaseModel):
 
 class RegisterValidate(BaseModel):
     username: str
+    phone: str
+    code: str
     password: str
-    name: str
-    age: int
-    wallet_address: str
+    password1: str
+    nickName: Optional[str]
+    age: Optional[int]
+    wallet_address: Optional[str]
+    email: Optional[str]
 
     @validator("password")
     def three_twenty(cls, v):
         if len(v) < 3 or len(v) > 20:
             raise ValueError('密码过长或过短!')
+        return v
+
+    # 确保输入密码与确认密码一致
+    @validator("password1")
+    def match_password_edit(cls, v, values, **kwargs):
+        if "password" in values and v != values["password"]:
+            raise ValueError("抱歉，新密码与确认密码不匹配！！")
+        return v
+
+    # 验证用户输入的验证码
+    @validator("code")
+    def val_code(cls, v, values):
+        if v != r.get(values["phone"]):
+            raise ValueError("抱歉，你输入的验证码不正确!")
         return v
 
     @validator("wallet_address")
@@ -50,6 +68,23 @@ class RegisterValidate(BaseModel):
             raise ValueError("抱歉，用户名不能重复")
         if len(v) < 3 or len(v) > 15:
             raise ValueError('用户名过长或过短!')
+        return v.title()
+
+    @validator("phone")
+    def match_phone_number(cls, v):
+        ret = re.match(r'^1[356789]\d{9}$', str(v))
+        if not ret:
+            raise ValueError("抱歉，手机号格式不正确!")
+        phone_ = User.find_one({"phone": v})
+        if phone_:
+            raise ValueError("抱歉，改手机号已经注册过了")
+        return v
+
+    @validator("email")
+    def match_email(cls, v):
+        ret = re.match(r"^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+){0,4}@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+){0,4}$", v)
+        if not ret:
+            raise ValueError("抱歉，邮箱号格式不正确！")
         return v.title()
 
 
@@ -107,22 +142,6 @@ class EditPassword(BaseModel):
         return v
 
 
-class ShippingAddress(BaseModel):
-    customer_name: Optional[str]
-    shipping_address: Optional[str]
-    customer_number: Optional[int]
-    id: Optional[int]
 
-    @validator("customer_name")
-    def val_customer_name(cls, v):
-        if len(v) < 3 or len(v) > 15:
-            raise ValueError("抱歉，用户名过长或过短！")
-        return v.title()
 
-    @validator("customer_number")
-    def val_customer_number(cls, v):
-        ret = re.match(r'^1[356789]\d{9}$', str(v))
-        if not ret:
-            raise ValueError("抱歉，手机号格式不正确!")
-        return v
 

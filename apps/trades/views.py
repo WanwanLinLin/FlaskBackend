@@ -2,16 +2,20 @@
 import time, binascii, os, math
 
 from functools import wraps
-from .models import Orders, Portfolios, NFT_list, Comments, Portfolios_like
+from apps import create_jwt, login_required
+from .validate import ShippingAddress
+from .models import (Orders, Portfolios, NFT_list, Comments,
+                     Portfolios_like, Shipping_address, User)
 from apps.goods import Goods, Goods_se
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g
+from pydantic import error_wrappers
 
 # 创建 “我的交易” 蓝图
 bp = Blueprint("trades", __name__)
 
 
 def create_numbering(length=24):
-    """创建一个token"""
+    """创建一个随机的订单编号"""
     s = binascii.b2a_base64(os.urandom(length))[:-1].decode('utf-8')
     for x in ['+', '=', '/', '?', '&', '%', "#"]:
         s = s.replace(x, "")
@@ -42,8 +46,10 @@ def check_request2(one_dict):
 
 # 增加订单的接口
 @bp.route("/addToCart/<string:sku_id>/<string:sku_num>", methods=["GET", "POST"])
+@login_required
 def add_to_cart(sku_id, sku_num):
     x_ = request.headers.get("userTempId")
+    username = g.username
     # 以下为数据库字段
     sku_id = int(sku_id)
     sku_num = int(sku_num)
@@ -83,8 +89,9 @@ def add_to_cart(sku_id, sku_num):
                                     "price": price,
                                     "payment": payment,
                                     "inventory": inventory,
-                                    "userTempId": x_
+                                    "userTempId": x_,
                                     }})
+
     else:
         Orders.insert_one({"purchase_time": purchase_time,
                            "purchase_num": sku_num,
@@ -98,7 +105,8 @@ def add_to_cart(sku_id, sku_num):
                            "userTempId": x_,
                            "default_img": default_img,
                            "isChecked": 0,
-                           "isOrdered": 0
+                           "isOrdered": 0,
+                           "username": username
                            })
 
     return jsonify({"code": 200,
@@ -153,6 +161,34 @@ def check_cart(sku_id, is_checked):
         "message": "成功",
         "data": None,
         "ok": True
+    })
+
+
+# 获取订单交易页信息的接口
+@bp.route("/auth/trade", methods=["GET", "POST"])
+@login_required
+def auth_trade():
+    username = g.username
+    user_address_list = []
+    detail_array_list = []
+    address_list = list(Shipping_address.find({"connect_username": username}, {"_id": 0}))
+    detail_list = list(Orders.find({}, {"_id": 0}))
+    user_id = User.find_one({"username": username})["id"]
+    for x_ in address_list:
+        user_address_list.append({
+            "id": x_["id"],
+            "userAddress": x_["shipping_address"],
+            "userId": user_id,
+            "consignee": x_["username"],
+            "phoneNum": x_["customer_number"],
+            "isDefault": x_["isDefault"]
+        })
+
+    return jsonify({
+        "code": 200,
+        "message": "成功",
+        "data": None,
+        "ok": False
     })
 
 
@@ -309,3 +345,73 @@ def get_portfolios_likes():
     print(total)
 
     return jsonify({"msg": "获取成功！", "total_likes": total})
+
+
+# 查看当前用户所有的收货地址
+@bp.route("/show_shipping_address", methods=["GET", "POST"])
+@login_required
+def show_shipping_address():
+    all_shipping_address = list(Shipping_address.find({"username": g.username},
+                                                      {"_id": 0}))
+    if all_shipping_address:
+        return jsonify({"msg": all_shipping_address})
+
+    return jsonify({"err": "当前收货地址列表为空~"})
+
+
+# 添加收货地址信息
+@bp.route("/add_shipping_address", methods=["GET", "POST"])
+@login_required
+def add_shipping_address():
+    try:
+        ShippingAddress(**request.get_json())
+    except error_wrappers.ValidationError as e:
+        print(e)
+        return e.json()
+    else:
+        # 首先获取该用户收货地址总数，看看是否超过6个
+        ship_address_count = Shipping_address.count_documents({"username": g.username})
+        all_ship_address = Shipping_address.count_documents({})
+        if ship_address_count > 5:
+            return jsonify({"err": "抱歉，你已经有6个收货地址了，不能再添加更多了"})
+        # 创建一个自增长id
+        if ship_address_count == 0:
+            id = all_ship_address + 1
+        else:
+            id_list = list(Shipping_address.find().sort("id", -1))
+            id = id_list[0]["id"] + 1
+
+        customer_name = request.json.get("customer_name")
+        shipping_address = request.json.get("shipping_address")
+        customer_number = request.json.get("customer_number")
+
+        Shipping_address.insert_one({"id": id, "customer_name": customer_name,
+                                     "shipping_address": shipping_address,
+                                     "customer_number": customer_number,
+                                     "username": g.username})
+
+    return jsonify({"msg": "收货地址添加成功！！！"})
+
+
+# 修改收货地址信息
+@bp.route("/edit_shipping_address", methods=["GET", "POST"])
+@login_required
+def edit_shipping_address():
+    try:
+        ShippingAddress(**request.get_json())
+    except error_wrappers.ValidationError as e:
+        print(e)
+        return e.json()
+    else:
+        id = request.json.get("id")
+        user_address = Shipping_address.find_one({"id": id, "username": g.username})
+        if not user_address:
+            return jsonify({"err": "抱歉，该收货地址不存在！"})
+
+        X = request.get_json()
+
+        for k in X:
+            Shipping_address.update_one({"id": id, "username": g.username},
+                                        {"$set": {k: X[k]}})
+
+    return jsonify({"msg": "收货地址信息修改成功！"})

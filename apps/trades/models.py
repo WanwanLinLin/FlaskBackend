@@ -17,6 +17,12 @@ Comments = client.trade.comments
 # 点赞表集合
 Portfolios_like = client.trade.portfolios_likes
 
+# 收货地址集合
+Shipping_address = client.users.shipping_address
+
+# 登录注册集合
+User = client.users.information
+
 
 # zuopin_ = Portfolios.find_one({"id": 3})
 #
