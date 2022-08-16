@@ -36,8 +36,8 @@ def login_required(func):
 
     @wraps(func)
     def decorate(*args, **kwargs):
-        # if hasattr(g, "username"):
-        #     return g.username
+        if hasattr(g, "username"):
+            return g.username
         auth_jwt = request.headers.get('token')
         g.username = None
         try:
@@ -60,6 +60,12 @@ def login_required(func):
 
     return decorate
 
+
+# 单独实现一个解析jwt_token的函数
+def parse_jwt(auth_jwt, db):
+    payload = jwt.decode(auth_jwt, SALT, algorithms=['HS256'])
+    user = db.find_one({"username": payload.get("username")})
+    return user
 
 
 

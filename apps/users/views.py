@@ -83,7 +83,7 @@ def get_user_info():
 @login_required
 def logout():
     username = g.username
-    r.delete(username)
+    # r.delete(username)
 
     return jsonify({
         "code": 200,

@@ -2,7 +2,7 @@
 import time, binascii, os, math
 
 from functools import wraps
-from apps import create_jwt, login_required
+from apps import create_jwt, login_required, parse_jwt
 from .validate import ShippingAddress
 from .models import (Orders, Portfolios, NFT_list, Comments,
                      Portfolios_like, Shipping_address, User)
@@ -46,68 +46,149 @@ def check_request2(one_dict):
 
 # 增加订单的接口
 @bp.route("/addToCart/<string:sku_id>/<string:sku_num>", methods=["GET", "POST"])
-@login_required
 def add_to_cart(sku_id, sku_num):
-    x_ = request.headers.get("userTempId")
-    username = g.username
+    uuid_ = request.headers.get("userTempId")
+    token_ = request.headers.get('token')
+
     # 以下为数据库字段
     sku_id = int(sku_id)
     sku_num = int(sku_num)
-    goods = Goods_se.find_one({"id": sku_id})
-    default_img = goods["defualtImg"]
-    # 订单表与商品表关联的id
-    connect_goods_se_id = goods["id"]
-    name = goods["title"]
-    purchase_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-    price = goods["price"]
-    payment = price * sku_num
-    inventory = goods["inventory"] - sku_num
-    order_number = create_numbering(8)
-    status = "To_Be_Delivered"
 
-    # 更新货物的数量
-    Goods_se.update_one({"title": name},
-                        {"$set": {"inventory": inventory}})
+    # 用户已经登录
+    if token_:
+        username = parse_jwt(token_, User)["username"]
+        goods = Goods_se.find_one({"id": sku_id})
+        default_img = goods["defualtImg"]
+        # 订单表与商品表关联的id
+        connect_goods_se_id = goods["id"]
+        name = goods["title"]
+        purchase_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        price = goods["price"]
+        payment = price * sku_num
+        inventory = goods["inventory"] - sku_num
+        order_number = create_numbering(16)
+        status = "To_Be_Delivered"
 
-    y_ = Orders.find_one({"name": name})
-    if y_:
-        # 根据前端要求，返回三种不同的状态
-        if sku_num == 1 or sku_num == -1 or sku_num == 0:
-            # 删除或增加商品数量时修改产品的总价格
-            payment = y_["payment"] + payment
-            # 删除或增加商品数量时修改产品的总数量
-            sku_num = y_["purchase_num"] + sku_num
+        # 更新货物的数量
+        Goods_se.update_one({"title": name},
+                            {"$set": {"inventory": inventory}})
+
+        y_ = Orders.find_one({"name": name, "userTempId": token_})
+        # 修改订单
+        if y_:
+            # 根据前端要求，返回三种不同的状态
+            if sku_num == 1 or sku_num == -1 or sku_num == 0:
+                # 删除或增加商品数量时修改产品的总价格
+                payment = y_["payment"] + payment
+                # 删除或增加商品数量时修改产品的总数量
+                sku_num = y_["purchase_num"] + sku_num
+            else:
+                # 删除或增加商品数量时修改产品的总价格
+                payment = y_["payment"] + payment
+                # 删除或增加商品数量时修改产品的总数量
+                sku_num = y_["purchase_num"] + sku_num
+
+            Orders.update_one({"name": name, "userTempId": token_},
+                              {"$set": {"purchase_time": purchase_time,
+                                        "purchase_num": sku_num,
+                                        "price": price,
+                                        "payment": payment,
+                                        "inventory": inventory,
+                                        }})
+
+        # 增加订单
         else:
-            # 删除或增加商品数量时修改产品的总价格
-            payment = y_["payment"] + payment
-            # 删除或增加商品数量时修改产品的总数量
-            sku_num = y_["purchase_num"] + sku_num
+            Orders.insert_one({"purchase_time": purchase_time,
+                               "purchase_num": sku_num,
+                               "price": price,
+                               "payment": payment,
+                               "inventory": inventory,
+                               "status": status,
+                               "order_number": order_number,
+                               "name": name,
+                               "connect_goods_se_id": connect_goods_se_id,
+                               "userTempId": token_,
+                               "default_img": default_img,
+                               "isChecked": 0,
+                               "isOrdered": 0,
+                               })
 
-        Orders.update_one({"name": name},
-                          {"$set": {"purchase_time": purchase_time,
-                                    "purchase_num": sku_num,
-                                    "price": price,
-                                    "payment": payment,
-                                    "inventory": inventory,
-                                    "userTempId": x_,
-                                    }})
+        # 将未登录时的购物车加入到已登录的购物车中
+        if username:
+            uuid_list = list(Orders.find({"userTempId": uuid_}))
+            token_list = list(Orders.find({"userTempId": token_}))
+            for u_ in uuid_list:
+                for t_ in token_list:
+                    if u_["name"] == t_["name"]:
+                        Orders.update_many({"name": t_["name"]},
+                                          {"$set": {"purchase_num": t_["purchase_num"] + u_["purchase_num"],
+                                                    "payment": (t_["purchase_num"] + u_["purchase_num"]) * t_["price"]}})
+                        # 删除数据库中的一条数据，因为同一账号同一商品重复的最多两条
+                        Orders.delete_one({"name": t_["name"], "userTempId": uuid_})
+                        print("这里执行了")
+                    else:
+                        print("这里也执行了")
+                        Orders.update_one({"name": u_["name"], "userTempId": uuid_},
+                                          {"$set": {"userTempId": token_,
+                                                    "purchase_num": u_["purchase_num"]}})
 
+    # 用户未登录
     else:
-        Orders.insert_one({"purchase_time": purchase_time,
-                           "purchase_num": sku_num,
-                           "price": price,
-                           "payment": payment,
-                           "inventory": inventory,
-                           "status": status,
-                           "order_number": order_number,
-                           "name": name,
-                           "connect_goods_se_id": connect_goods_se_id,
-                           "userTempId": x_,
-                           "default_img": default_img,
-                           "isChecked": 0,
-                           "isOrdered": 0,
-                           "username": username
-                           })
+        goods = Goods_se.find_one({"id": sku_id})
+        default_img = goods["defualtImg"]
+        # 订单表与商品表关联的id
+        connect_goods_se_id = goods["id"]
+        name = goods["title"]
+        purchase_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        price = goods["price"]
+        payment = price * sku_num
+        inventory = goods["inventory"] - sku_num
+        order_number = create_numbering(16)
+        status = "To_Be_Delivered"
+
+        # 更新货物的数量
+        Goods_se.update_one({"title": name},
+                            {"$set": {"inventory": inventory}})
+
+        y_ = Orders.find_one({"name": name, "userTempId": uuid_})
+        # 修改订单
+        if y_:
+            # 根据前端要求，返回三种不同的状态
+            if sku_num == 1 or sku_num == -1 or sku_num == 0:
+                # 删除或增加商品数量时修改产品的总价格
+                payment = y_["payment"] + payment
+                # 删除或增加商品数量时修改产品的总数量
+                sku_num = y_["purchase_num"] + sku_num
+            else:
+                # 删除或增加商品数量时修改产品的总价格
+                payment = y_["payment"] + payment
+                # 删除或增加商品数量时修改产品的总数量
+                sku_num = y_["purchase_num"] + sku_num
+
+            Orders.update_one({"name": name, "userTempId": uuid_},
+                              {"$set": {"purchase_time": purchase_time,
+                                        "purchase_num": sku_num,
+                                        "price": price,
+                                        "payment": payment,
+                                        "inventory": inventory,
+                                        }})
+
+        # 增加订单
+        else:
+            Orders.insert_one({"purchase_time": purchase_time,
+                               "purchase_num": sku_num,
+                               "price": price,
+                               "payment": payment,
+                               "inventory": inventory,
+                               "status": status,
+                               "order_number": order_number,
+                               "name": name,
+                               "connect_goods_se_id": connect_goods_se_id,
+                               "userTempId": uuid_,
+                               "default_img": default_img,
+                               "isChecked": 0,
+                               "isOrdered": 0,
+                               })
 
     return jsonify({"code": 200,
                     "message": "成功",
@@ -120,10 +201,16 @@ def add_to_cart(sku_id, sku_num):
 @bp.route("/cartList", methods=["GET", "POST"])
 def cart_list():
     x_ = request.headers.get("userTempId")
+    y_ = request.headers.get('token')
     print(x_)
     create_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     data = [{"cartInfoList": [], "activityRuleList": None, "createTime": create_time}]
-    info = Orders.find({"userTempId": x_}, {"_id": 0, "userTempId": 0})
+
+    if y_:
+        info = Orders.find({"userTempId": y_}, {"_id": 0, "userTempId": 0})
+    else:
+        info = Orders.find({"userTempId": x_}, {"_id": 0, "userTempId": 0})
+
     for x in info:
         data[0]["cartInfoList"].append(x)
 
@@ -168,12 +255,16 @@ def check_cart(sku_id, is_checked):
 @bp.route("/auth/trade", methods=["GET", "POST"])
 @login_required
 def auth_trade():
+    token_ = request.headers.get('token')
     username = g.username
     user_address_list = []
     detail_array_list = []
     address_list = list(Shipping_address.find({"connect_username": username}, {"_id": 0}))
-    detail_list = list(Orders.find({}, {"_id": 0}))
+    detail_list = list(Orders.find({"userTempId": token_}, {"_id": 0}))
+    # print(detail_list)
     user_id = User.find_one({"username": username})["id"]
+    price = 0
+
     for x_ in address_list:
         user_address_list.append({
             "id": x_["id"],
@@ -184,10 +275,35 @@ def auth_trade():
             "isDefault": x_["isDefault"]
         })
 
+    for i, y_ in enumerate(detail_list, start=1):
+        price += y_["price"]
+        detail_array_list.append({
+            "id": y_["connect_goods_se_id"],
+            "orderId": i,
+            "skuId": i,
+            "skuName": y_["name"],
+            "imgUrl": y_["default_img"],
+            "orderPrice": y_["payment"],
+            "skuNum": y_["purchase_num"],
+            "hasStock": True
+        })
+
+    # 整合到data里面
+    data = {
+        "totalAmount": price,
+        "userAddressList": user_address_list,
+        "tradeNo": create_numbering(24),
+        "totalNum": len(detail_array_list),
+        "detailArrayList": detail_array_list
+    }
+
+    # # 生成结算订单后应该清空购物车
+    # Orders.delete_many({"userTempId": token_})
+
     return jsonify({
         "code": 200,
         "message": "成功",
-        "data": None,
+        "data": data,
         "ok": False
     })
 
@@ -347,16 +463,26 @@ def get_portfolios_likes():
     return jsonify({"msg": "获取成功！", "total_likes": total})
 
 
-# 查看当前用户所有的收货地址
-@bp.route("/show_shipping_address", methods=["GET", "POST"])
+# 查看当前用户所有的收货地址的接口
+@bp.route("/userAddress/auth/findUserAddressList", methods=["GET", "POST"])
 @login_required
-def show_shipping_address():
+def user_address_list():
     all_shipping_address = list(Shipping_address.find({"username": g.username},
                                                       {"_id": 0}))
     if all_shipping_address:
-        return jsonify({"msg": all_shipping_address})
+        return jsonify({
+            "code": 200,
+            "message": "成功",
+            "data": all_shipping_address,
+            "ok": True
+        })
 
-    return jsonify({"err": "当前收货地址列表为空~"})
+    return jsonify({
+        "code": 201,
+        "message": "用户收货地址为空！",
+        "data": None,
+        "ok": False
+    })
 
 
 # 添加收货地址信息
