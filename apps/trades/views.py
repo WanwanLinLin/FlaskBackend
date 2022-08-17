@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import time, binascii, os, math
+import time, binascii, os, math, json
 
 from functools import wraps
+from apps.nosql_db import r_2
 from apps import create_jwt, login_required, parse_jwt
-from .validate import ShippingAddress
+from .validate import ShippingAddress, SubmitOrder
 from .models import (Orders, Portfolios, NFT_list, Comments,
                      Portfolios_like, Shipping_address, User)
 from apps.goods import Goods, Goods_se
@@ -20,6 +21,13 @@ def create_numbering(length=24):
     for x in ['+', '=', '/', '?', '&', '%', "#"]:
         s = s.replace(x, "")
     return s
+
+
+# 根据日期生成一个随机的支付订单号
+def get_order_code():
+    #  年月日时分秒+time.time()的后7位
+    order_no = str(time.strftime('%Y%m%d%H%M%S', time.localtime(time.time())) + str(time.time()).replace('.', '')[-7:])
+    return order_no
 
 
 # 用于约束接口必填数据key和必填项目的数据类型的装饰器
@@ -276,7 +284,7 @@ def auth_trade():
         })
 
     for i, y_ in enumerate(detail_list, start=1):
-        price += y_["price"]
+        price += y_["payment"]
         detail_array_list.append({
             "id": y_["connect_goods_se_id"],
             "orderId": i,
@@ -287,7 +295,6 @@ def auth_trade():
             "skuNum": y_["purchase_num"],
             "hasStock": True
         })
-
     # 整合到data里面
     data = {
         "totalAmount": price,
@@ -305,6 +312,112 @@ def auth_trade():
         "message": "成功",
         "data": data,
         "ok": False
+    })
+
+
+# 提交订单的接口
+@bp.route("/auth/submitOrder", methods=["GET", "POST"])
+@login_required
+def submit_order():
+    try:
+        SubmitOrder(**request.get_json())
+    except error_wrappers.ValidationError as e:
+        print(e)
+        return e.json()
+
+    # print(request.get_json())
+    trade_no = request.args.get("tradeNo")
+    token_ = request.headers.get("token")
+
+    # 如果订单号已经存在，则返回错误信息
+    info = r_2.hgetall(trade_no)
+    if info:
+        return jsonify({
+            "code": 201,
+            "message": "抱歉，该订单号已经存在！",
+            "data": trade_no,
+            "ok": True
+        })
+
+    # 将提交的订单信息以hash形式存到redis中
+    req = request.get_json()
+    for x_ in req:
+        r_2.hset(trade_no, x_, json.dumps(req[x_]))
+    r_2.expire(trade_no, 60*60)
+
+    # # 订单信息提交之后应该删除订单表中的相关信息
+    # Orders.delete_many({"userTempId": token_})
+
+    return jsonify({
+        "code": 200,
+        "message": "成功",
+        "data": trade_no,
+        "ok": True
+    })
+
+
+# 获取订单支付信息的接口
+@bp.route("/payment/weixin/createNative/<string:order_id>", methods=["GET", "POST"])
+@login_required
+def order_payment(order_id):
+    # 从redis中获取订单列表的总价格
+    order_list = r_2.hget(order_id, "orderDetailList")
+    order_list = json.loads(order_list)
+    total_price = 0
+
+    for x_ in order_list:
+        total_price += x_["orderPrice"]
+
+    data = {
+        "codeUrl": "weixin://wxpay/bizpayurl?pr=P0aPBJK",
+        "orderId": order_id,
+        "totalFee": total_price,
+        "resultCode": "SUCCESS"
+    }
+    return jsonify({
+        "code": 200,
+        "message": "成功",
+        "data": data,
+        "ok": True
+
+    })
+
+
+# 查询订单支付状态的接口
+@bp.route("/weixin/queryPayStatus/<string:order_id>", methods=["GET", "POST"])
+@login_required
+def pay_status(order_id):
+    pay_info = r_2.hgetall(order_id)
+
+    if not pay_info:
+        return jsonify({
+            "code": 205,
+            "message": "支付超时!",
+            "data": None,
+            "ok": False
+        })
+
+    # 支付成功应该从redis里面删除对应的订单支付信息
+    # r_2.delete(order_id)
+
+    return jsonify({
+        "code": 200,
+        "message": "支付成功!",
+        "data": None,
+        "ok": True
+    })
+
+
+# 在个人中心展示订单列表的接口
+@bp.route("/order/auth/<string:page>/<string:limit>", methods=["GET", "POST"])
+@login_required
+def center_order_list(page, limit):
+
+    return jsonify({
+        "code": 200,
+        "message": "成功",
+        "data": None,
+        "ok": True
     })
 
 
@@ -467,7 +580,7 @@ def get_portfolios_likes():
 @bp.route("/userAddress/auth/findUserAddressList", methods=["GET", "POST"])
 @login_required
 def user_address_list():
-    all_shipping_address = list(Shipping_address.find({"username": g.username},
+    all_shipping_address = list(Shipping_address.find({"connect_username": g.username},
                                                       {"_id": 0}))
     if all_shipping_address:
         return jsonify({

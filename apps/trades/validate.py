@@ -23,3 +23,12 @@ class ShippingAddress(BaseModel):
         if not ret:
             raise ValueError("抱歉，手机号格式不正确!")
         return v
+
+
+class SubmitOrder(BaseModel):
+    consignee: str
+    consigneeTel: str
+    deliveryAddress: str
+    paymentWay: str
+    orderComment: str
+    orderDetailList: list
