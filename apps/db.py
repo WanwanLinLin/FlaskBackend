@@ -7,6 +7,9 @@ db = SQLAlchemy(session_options={"expire_on_commit": False})
 
 
 def init_database(app):
+    # 本地测试链接
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:linwan@localhost:5432/Flask_Vue'
+    # 线上服务器链接
+    # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:linwan@39.108.51.219:5432/Flask_Vue'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)

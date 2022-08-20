@@ -209,17 +209,18 @@ def list_():
                     goods_list.append(x_)
 
         else:
-            all_info_4 = list(Goods_se.find({}, {"_id": 0}))
-            # attrs_info = list(Goods_se_attrs.find({}, {"_id": 0, "connect_name": 0}))
-            # print(attrs_info, "\n")
-            for x in all_info_4:
-                trademark_list.append({"tmId": x["tmId"], "tmName": x["tmName"]})
-            # 获取不重复的品牌数据
-            trademark_list = [dict(t) for t in set([tuple(d.items()) for d in trademark_list])]
-
-            for x_ in all_info_4:
-                attrs_list = list(Goods_se_attrs.find({"connect_name": x_["tmName"]}, {"_id": 0, "connect_name": 0}))
-                goods_list.append(x_)
+            # all_info_4 = list(Goods_se.find({}, {"_id": 0}))
+            # # attrs_info = list(Goods_se_attrs.find({}, {"_id": 0, "connect_name": 0}))
+            # # print(attrs_info, "\n")
+            # for x in all_info_4:
+            #     trademark_list.append({"tmId": x["tmId"], "tmName": x["tmName"]})
+            # # 获取不重复的品牌数据
+            # trademark_list = [dict(t) for t in set([tuple(d.items()) for d in trademark_list])]
+            #
+            # for x_ in all_info_4:
+            #     attrs_list = list(Goods_se_attrs.find({"connect_name": x_["tmName"]}, {"_id": 0, "connect_name": 0}))
+            #     goods_list.append(x_)
+            pass
 
         # 处理props参数
         # （初稿：暂时保留）
