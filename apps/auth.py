@@ -2,7 +2,7 @@
 import jwt
 import datetime
 import functools
-from apps.nosql_db import r
+from apps.nosql_db import r, r_3
 from jwt import exceptions
 from apps.error import ApiError
 from functools import wraps
@@ -32,6 +32,7 @@ def create_jwt(username, password):
     return result
 
 
+# 用于认证普通用户
 def login_required(func):
 
     @wraps(func)
@@ -68,6 +69,28 @@ def parse_jwt(auth_jwt, db):
     return user
 
 
+# 用于认证后台管理用户
+def permission_required(func):
+    @wraps(func)
+    def decorate(*args, **kwargs):
+        if hasattr(g, "admin_username"):
+            return g.admin_username
+        x_api_key = request.headers.get("XAPIKEY")
+        g.admin_username = None
+        try:
+            g.admin_username = r_3.get(x_api_key)
+            assert x_api_key == r_3.get(g.admin_username)
+        except Exception as e:
+            print(e)
+            return jsonify({
+                "code": 201,
+                "message": "抱歉，用户权限认证失败!",
+                "data": None,
+                "ok": False
+            })
+        return func(*args, **kwargs)
+
+    return decorate
 
 
 
