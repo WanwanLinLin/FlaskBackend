@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from flask import Response
-import pymongo, redis
 from flask import Flask
 from flask_caching import Cache
 from apps.users import bp as users_bp
@@ -9,21 +7,14 @@ from apps.goods import bp as goods_bp
 from apps.account import bp as account_bp
 from apps.admin_trade_mark import bp as admin_trade_mark_bp
 from apps.admin_file_ontroller import bp as admin_file_controller_bp
+from apps.admin_category_management import bp as admin_category_management_bp
 from apps.extension import init_swagger
 from flask_login import LoginManager
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
 from apps import db, init_database
 from apps.account import user_cli
-# from apps.goods import category_list_db
 
 login_manager = LoginManager()
-
-# 连接数据库
-# client = pymongo.MongoClient("mongodb://localhost/", 27017)
-# pool = redis.ConnectionPool(host="127.0.1", port=6379, db=3, decode_responses=True)
-# r = redis.Redis(connection_pool=pool)
-
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -63,6 +54,7 @@ app.register_blueprint(goods_bp, url_prefix="/v1/goods")
 app.register_blueprint(account_bp, url_prefix="/v1/admin")
 app.register_blueprint(admin_trade_mark_bp, url_prefix="/v1/admin/product")
 app.register_blueprint(admin_file_controller_bp, url_prefix="/v1/admin/fileController")
+app.register_blueprint(admin_category_management_bp, url_prefix="/v1/admin/categoryManagement")
 
 
 @app.route("/", methods=["GET", "POST"])

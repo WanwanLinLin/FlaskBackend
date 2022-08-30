@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # 初始化并使用 postgresql
-
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy(session_options={"expire_on_commit": False})

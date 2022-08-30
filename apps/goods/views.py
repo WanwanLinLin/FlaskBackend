@@ -97,7 +97,8 @@ def list_():
                 not category_name and not keyword and not \
                 props and not trademark:
             all_info = list(Goods_se.find({"tmId": 1, "tmName": "桂林卤粉"}, {"_id": 0}))
-            attrs_info = list(Goods_se_attrs.find({"connect_name": "桂林卤粉"}, {"_id": 0, "connect_name": 0}))
+            # attrs_info = list(Goods_se_attrs.find({"connect_name": "桂林卤粉"}, {"_id": 0, "connect_name": 0}))
+            attrs_info = list(Goods_se_attrs.find({"connect_category3Id": "4"}, {"_id": 0}))
             # print(attrs_info, "\n")
             for x in all_info:
                 trademark_list.append({"tmId": x["tmId"], "tmName": x["tmName"]})
@@ -179,8 +180,10 @@ def list_():
             for x_ in all_info_2:
                 # if x_["tmName"] == keyword:
                 if keyword in x_["tmName"]:
-                    attrs_list = list(Goods_se_attrs.find({"connect_name": x_["tmName"]},
-                                                          {"_id": 0, "connect_name": 0}))
+                    # attrs_list = list(Goods_se_attrs.find({"connect_name": x_["tmName"]},
+                    #                                       {"_id": 0, "connect_name": 0}))
+                    attrs_list = list(Goods_se_attrs.find({"connect_category3Id": x_["category3Id"]},
+                                                          {"_id": 0}))
                     goods_list.append(x_)
 
         elif all_info_2:
@@ -189,8 +192,10 @@ def list_():
                 trademark_list.append({"tmId": x["tmId"], "tmName": x["tmName"]})
 
             for x_ in all_info_2:
-                attrs_list = list(Goods_se_attrs.find({"connect_name": x_["tmName"]},
-                                                      {"_id": 0, "connect_name": 0}))
+                # attrs_list = list(Goods_se_attrs.find({"connect_name": x_["tmName"]},
+                #                                       {"_id": 0, "connect_name": 0}))
+                attrs_list = list(Goods_se_attrs.find({"connect_category3Id": x_["category3Id"]},
+                                                      {"_id": 0}))
                 goods_list.append(x_)
 
         elif keyword:
@@ -204,8 +209,10 @@ def list_():
 
             for x_ in all_info_3:
                 if keyword in x_["tmName"]:
-                    attrs_list = list(Goods_se_attrs.find({"connect_name": x_["tmName"]},
-                                                          {"_id": 0, "connect_name": 0}))
+                    # attrs_list = list(Goods_se_attrs.find({"connect_name": x_["tmName"]},
+                    #                                       {"_id": 0, "connect_name": 0}))
+                    attrs_list = list(Goods_se_attrs.find({"connect_category3Id": x_["category3Id"]},
+                                                          {"_id": 0}))
                     goods_list.append(x_)
 
         else:

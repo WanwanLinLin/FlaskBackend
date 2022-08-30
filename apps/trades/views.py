@@ -135,9 +135,9 @@ def add_to_cart(sku_id, sku_num):
                                                          "price"]}})
                         # 删除数据库中的一条数据，因为同一账号同一商品重复的最多两条
                         Orders.delete_one({"name": t_["name"], "userTempId": uuid_})
-                        print("这里执行了")
+                        # print("这里执行了")
                     else:
-                        print("这里也执行了")
+                        # print("这里也执行了")
                         Orders.update_one({"name": u_["name"], "userTempId": uuid_},
                                           {"$set": {"userTempId": token_,
                                                     "purchase_num": u_["purchase_num"]}})

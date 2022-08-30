@@ -10,7 +10,7 @@ from .validate import SaveTrademark, UpdateTrademark
 bp = Blueprint("admin_trade_mark", __name__)
 
 
-# 这是获取品牌总数的接口
+# 获取品牌总数的接口
 @bp.route("/baseTrademark/<string:page>/<string:limit>", methods=["GET", "POST"])
 @permission_required
 def base_trade_mark(page, limit):
@@ -51,7 +51,7 @@ def base_trade_mark(page, limit):
     })
 
 
-# 这是添加品牌的接口
+# 添加品牌的接口
 @bp.route("/baseTrademark/save", methods=["POST"])
 @permission_required
 def save_trademark():
@@ -107,7 +107,7 @@ def update_trademark():
     })
 
 
-# 这是删除品牌的接口
+# 删除品牌的接口
 @bp.route("/baseTrademark/remove/<int:id>", methods=["DELETE"])
 @permission_required
 def remove_trademark(id):
@@ -131,5 +131,8 @@ def remove_trademark(id):
         "data": None,
         "ok": True
     })
+
+
+
 
 
