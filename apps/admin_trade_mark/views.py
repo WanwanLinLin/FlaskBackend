@@ -10,7 +10,26 @@ from .validate import SaveTrademark, UpdateTrademark
 bp = Blueprint("admin_trade_mark", __name__)
 
 
-# 获取品牌总数的接口
+# 一次性获取所有品牌的接口
+@bp.route("/baseTrademark/getTrademarkList", methods=["GET", "POST"])
+def get_trademark_list():
+    trademark_list = list(Goods_trademark.find({}))
+    data = []
+    for x_ in trademark_list:
+        data.append({
+            "id": x_["id"],
+            "tmName": x_["tmName"],
+            "logoUrl": x_["logoUrl"]
+        })
+    return jsonify({
+        "code": 200,
+        "message": "获取成功",
+        "data": data,
+        "ok": True
+    })
+
+
+# 获取品牌总数的接口(需要分页)
 @bp.route("/baseTrademark/<string:page>/<string:limit>", methods=["GET", "POST"])
 @permission_required
 def base_trade_mark(page, limit):
