@@ -4,7 +4,7 @@ import pymongo, redis
 # 本地服务器
 client = pymongo.MongoClient("mongodb://localhost/", 27017)
 # 线上服务器
-# client = pymongo.MongoClient("mongodb://root:***********@39.108.51.219:****/")
+# client = pymongo.MongoClient("mongodb://root:***********@address:****/")
 pool = redis.ConnectionPool(host="127.0.0.1", port=6379, db=3, decode_responses=True)
 pool_2 = redis.ConnectionPool(host="127.0.0.1", port=6379, db=2, decode_responses=True)
 pool_3 = redis.ConnectionPool(host="127.0.0.1", port=6379, db=1, decode_responses=True)

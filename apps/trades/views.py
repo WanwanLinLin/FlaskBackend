@@ -3,6 +3,7 @@ import time, binascii, os, math, json
 
 from functools import wraps
 from apps.nosql_db import r_2
+from apps.utils import create_numbering
 from apps import create_jwt, login_required, parse_jwt
 from .validate import ShippingAddress, SubmitOrder
 from .models import (Orders, Portfolios, NFT_list, Comments,
@@ -14,14 +15,6 @@ from datetime import timedelta, datetime
 
 # 创建 “我的交易” 蓝图
 bp = Blueprint("trades", __name__)
-
-
-def create_numbering(length=24):
-    """创建一个随机的订单编号"""
-    s = binascii.b2a_base64(os.urandom(length))[:-1].decode('utf-8')
-    for x in ['+', '=', '/', '?', '&', '%', "#"]:
-        s = s.replace(x, "")
-    return s
 
 
 # 根据日期生成一个随机的支付订单号

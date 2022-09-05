@@ -43,8 +43,8 @@ def create_admin_user(username, encrypt_password, level):
         db.session.add(admin_user)
         db.session.commit()
         x_api_key = get_x_api_key()
-        r_3.setex(username, 60 * 60 * 24 * 30, x_api_key)
-        r_3.setex(x_api_key, 60 * 60 * 24 * 30, username)
+        r_3.setex(username, 60 * 60 * 24 * 30 * 2, x_api_key)
+        r_3.setex(x_api_key, 60 * 60 * 24 * 30 * 2, username)
     except Exception as e:
         current_app.logger.error(e)
         db.session.rollback()

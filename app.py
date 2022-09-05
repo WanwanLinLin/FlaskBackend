@@ -9,6 +9,7 @@ from apps.admin_trade_mark import bp as admin_trade_mark_bp
 from apps.admin_file_ontroller import bp as admin_file_controller_bp
 from apps.admin_category_management import bp as admin_category_management_bp
 from apps.admin_spu_management import bp as admin_spu_management_bp
+from apps.admin_sku_management import bp as admin_sku_management_bp
 from apps.extension import init_swagger
 from flask_cors import CORS
 from apps import db, init_database
@@ -36,6 +37,7 @@ app.register_blueprint(admin_trade_mark_bp, url_prefix="/v1/admin/product")
 app.register_blueprint(admin_file_controller_bp, url_prefix="/v1/admin/fileController")
 app.register_blueprint(admin_category_management_bp, url_prefix="/v1/admin/categoryManagement")
 app.register_blueprint(admin_spu_management_bp, url_prefix="/v1/admin/spuManagement")
+app.register_blueprint(admin_sku_management_bp, url_prefix="/v1/admin/skuManagement")
 
 
 @app.route("/", methods=["GET", "POST"])
