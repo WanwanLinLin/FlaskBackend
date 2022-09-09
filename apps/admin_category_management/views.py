@@ -71,7 +71,6 @@ def get_category3(category2_id):
 @bp.route("/attrInfoList/<int:category1_id>/<int:category2_id>/<int:category3_id>", methods=["GET", "POST"])
 def get_attr_info_list(category1_id, category2_id, category3_id):
     category3_id = str(category3_id)
-
     data = []
     attr_list = Goods_se_attrs.find({"connect_category3Id": category3_id}, {"_id": 0})
     for i, x_ in enumerate(attr_list, start=1):

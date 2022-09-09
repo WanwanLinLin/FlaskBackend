@@ -3,7 +3,7 @@ import math, time, os
 from pydantic import error_wrappers
 from .validate import UpdateOrSaveSpuInfo
 from flask import Blueprint, request, jsonify
-from .models import Goods_se_sale_attrs, Goods_se_image_list
+from .models import Goods_se_sale_attrs, Goods_se_image_list, Goods_se_details_sku
 from apps.admin_trade_mark import Goods_trademark
 from apps.goods import Goods_se, Goods_se_attrs, Goods_se_details
 
@@ -16,12 +16,12 @@ def get_spu_list(page, limit):
     category3_id = request.args.get("category3Id")
     category3_id = str(category3_id)
 
-    spu_info = list(Goods_se.find({"category3Id": category3_id}, {"_id": 0}))
+    spu_info = list(Goods_se_details.find({"category3Id": category3_id}, {"_id": 0}))
     records = []
     for x_ in spu_info:
         records.append({
-            "id": x_["id"],
-            "spuName": x_["title"],
+            "id": x_["spuId"],
+            "spuName": x_["spuName"],
             "description": x_["description"],
             "category3Id": x_["category3Id"],
             "tmId": x_["tmId"],
@@ -72,8 +72,8 @@ def get_base_sale_attr_list():
 # 获取SPU基本信息的接口
 @bp.route("/product/getSpuById/<int:spu_id>", methods=["GET", "POST"])
 def get_spu_by_id(spu_id):
-    spu_info_detail = Goods_se_details.find_one({"spuId": spu_id})
-    if not spu_info_detail:
+    spu_info = Goods_se_details.find_one({"spuId": spu_id}, {"_id": 0})
+    if not spu_info:
         return jsonify({
             "code": 201,
             "message": "获取失败!",
@@ -81,15 +81,13 @@ def get_spu_by_id(spu_id):
             "ok": False
         })
 
-    spu_info = Goods_se.find_one({"id": spu_info_detail["connect_goods_se_id"]})
-
     data = {
-        "id": spu_info["id"],
-        "spuName": spu_info["title"],
+        "id": spu_info["spuId"],
+        "spuName": spu_info["spuName"],
         "description": spu_info["description"],
         "category3Id": spu_info["category3Id"],
         "tmId": spu_info["tmId"],
-        "spuSaleAttrList": spu_info_detail["spuSaleAttrList"]
+        "spuSaleAttrList": spu_info["spuSaleAttrList"]
     }
     return jsonify({
         "code": 200,
@@ -123,15 +121,10 @@ def update_spu_info():
 
     description = request.json.get("description")
     id_ = request.json.get("id")
-    title = request.json.get("spuName")
+    spu_name = request.json.get("spuName")
     spu_sale_attr_list = request.json.get("spuSaleAttrList")
     spu_image_list = request.json.get("spuImageList")
     # print(request.get_json())
-
-    # 更换description和spuName
-    goods_se_info_id = Goods_se_details.find_one({"spuId": id_})["connect_goods_se_id"]
-    Goods_se.update_one({"id": goods_se_info_id},
-                        {"$set": {"title": title, "description": description}})
 
     # 处理spuSaleAttrList
     new_spu_sale_attr_list = []
@@ -175,8 +168,10 @@ def update_spu_info():
         })
 
     # 最后更新Goods_se_details数据库
+    # 更新description和spuName
     Goods_se_details.update_one({"spuId": id_},
-                                {"$set": {"spuSaleAttrList": new_spu_sale_attr_list}})
+                                {"$set": {"spuSaleAttrList": new_spu_sale_attr_list,
+                                          "spuName": spu_name, "description": description}})
 
     return jsonify({
         "code": 200,
@@ -197,18 +192,18 @@ def save_spu_info():
     # print(request.get_json())
 
     tm_id = request.json.get("tmId")
-    title = request.json.get("spuName")
+    spu_name = request.json.get("spuName")
     description = request.json.get("description")
     category3_id = request.json.get("category3Id")
     spu_sale_attr_list = request.json.get("spuSaleAttrList")
     spu_image_list = request.json.get("spuImageList")
 
     # 1.创建一个新的Goods_se的ID，与SPU_ID并用
-    goods_se_id_list = list(Goods_se.find().sort("id", -1))
-    if not goods_se_id_list:
-        goods_se_id = 1
+    goods_se_spu_id_list = list(Goods_se_details.find().sort("spuId", -1))
+    if not goods_se_spu_id_list:
+        goods_se_spu_id = 1
     else:
-        goods_se_id = goods_se_id_list[0]["id"] + 1.0
+        goods_se_spu_id = goods_se_spu_id_list[0]["spuId"] + 1.0
 
     # 2.处理spuSaleAttrList
     new_spu_sale_attr_list = []
@@ -217,7 +212,7 @@ def save_spu_info():
             "id": i,
             'baseSaleAttrId': int(x_['baseSaleAttrId']),
             'saleAttrName': x_['saleAttrName'],
-            "spuId": goods_se_id
+            "spuId": goods_se_spu_id
         }
         new_x = []
         for j, y_ in enumerate(x_['spuSaleAttrValueList'], start=1):
@@ -226,7 +221,7 @@ def save_spu_info():
                 'baseSaleAttrId': y_['baseSaleAttrId'],
                 "saleAttrName": x_['saleAttrName'],
                 'saleAttrValueName': y_['saleAttrValueName'],
-                "spuId": goods_se_id,
+                "spuId": goods_se_spu_id,
                 "isChecked": "0"
             }
             new_x.append(dict_2)
@@ -243,39 +238,22 @@ def save_spu_info():
     for i, x_ in enumerate(spu_image_list, start=int(id)):
         Goods_se_image_list.insert_one({
             "id": i,
-            "spuId": goods_se_id,
+            "spuId": goods_se_spu_id,
             "imgName": x_["imageName"],
             "imgUrl": x_["imageUrl"]
         })
 
-    # 4.增加一条Goods_se记录
-    trademark_image = Goods_trademark.find_one({"id": tm_id})["logoUrl"]
-    goods_se_tm_name = Goods_trademark.find_one({"id": tm_id})["tmName"]
-    Goods_se.insert_one({
-            "id": goods_se_id,
-            "defualtImg": trademark_image,
-            "title": title,
-            "price": 666,
-            "createTime": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
-            "tmId": tm_id,
-            "tmName": goods_se_tm_name,
-            "category3Id": str(category3_id),
-            "hotScore": 4.0,
-            "attrs": None,
-            "inventory": 1000.0,
-            "description": description
-    })
-
-    # 增加一条Goods_se_details记录
+    # 4.增加一条Goods_se_details记录
     Goods_se_details.insert_one({
-        "spuId": goods_se_id,
-        "connect_goods_se_id": goods_se_id,
+        "spuId": goods_se_spu_id,
         "spuSaleAttrList": new_spu_sale_attr_list,
         "skuInfo": {},
         "categoryView": {},
-        "price": 666,
         "valuesSkuJson": "",
-        "category3Id": str(category3_id)
+        "category3Id": str(category3_id),
+        "description": description,
+        "spuName": spu_name,
+        "tmId": tm_id
     })
 
     return jsonify({
@@ -290,10 +268,7 @@ def save_spu_info():
 @bp.route("/product/deleteSpu/<int:spu_id>", methods=["DELETE"])
 def delete_spu(spu_id):
     # 删除Goods_details中的信息
-    connect_id = Goods_se_details.find_one({"spuId": spu_id})["connect_goods_se_id"]
-    Goods_se_details.delete_one({"connect_goods_se_id": spu_id})
-    # 删除Goods_se中的信息
-    Goods_se.delete_one({"id": connect_id})
+    Goods_se_details.delete_one({"spuId": spu_id})
     # 删除Goods_se_image_list中的信息
     # 删除SPU对应的图片
     image_name_list = list(Goods_se_image_list.find({"spuId": spu_id}, {"_id": 0}))

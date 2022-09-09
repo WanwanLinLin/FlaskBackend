@@ -7,8 +7,7 @@ from apps.utils import create_numbering
 from apps import create_jwt, login_required, parse_jwt
 from .validate import ShippingAddress, SubmitOrder
 from .models import (Orders, Portfolios, NFT_list, Comments,
-                     Portfolios_like, Shipping_address, User)
-from apps.goods import Goods, Goods_se
+                     Portfolios_like, Shipping_address, User, Goods_se_details_sku)
 from flask import Blueprint, jsonify, request, g
 from pydantic import error_wrappers
 from datetime import timedelta, datetime
@@ -59,21 +58,16 @@ def add_to_cart(sku_id, sku_num):
     # 用户已经登录
     if token_:
         username = parse_jwt(token_, User)["username"]
-        goods = Goods_se.find_one({"id": sku_id})
+        goods = Goods_se_details_sku.find_one({"id": sku_id})
         default_img = goods["defualtImg"]
         # 订单表与商品表关联的id
-        connect_goods_se_id = goods["id"]
-        name = goods["title"]
+        connect_goods_se_sku_id = goods["id"]
+        name = goods["skuName"]
         purchase_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        price = goods["price"]
+        price = int(goods["price"])
         payment = price * sku_num
-        inventory = goods["inventory"] - sku_num
         order_number = create_numbering(16)
         status = "To_Be_Delivered"
-
-        # 更新货物的数量
-        Goods_se.update_one({"title": name},
-                            {"$set": {"inventory": inventory}})
 
         y_ = Orders.find_one({"name": name, "userTempId": token_})
         # 修改订单
@@ -95,7 +89,6 @@ def add_to_cart(sku_id, sku_num):
                                         "purchase_num": sku_num,
                                         "price": price,
                                         "payment": payment,
-                                        "inventory": inventory,
                                         }})
 
         # 增加订单
@@ -104,11 +97,10 @@ def add_to_cart(sku_id, sku_num):
                                "purchase_num": sku_num,
                                "price": price,
                                "payment": payment,
-                               "inventory": inventory,
                                "status": status,
                                "order_number": order_number,
                                "name": name,
-                               "connect_goods_se_id": connect_goods_se_id,
+                               "connect_goods_se_id": connect_goods_se_sku_id,
                                "userTempId": token_,
                                "default_img": default_img,
                                "isChecked": 0,
@@ -137,21 +129,16 @@ def add_to_cart(sku_id, sku_num):
 
     # 用户未登录
     else:
-        goods = Goods_se.find_one({"id": sku_id})
+        goods = Goods_se_details_sku.find_one({"id": sku_id})
         default_img = goods["defualtImg"]
         # 订单表与商品表关联的id
-        connect_goods_se_id = goods["id"]
-        name = goods["title"]
+        connect_goods_se_sku_id = goods["id"]
+        name = goods["skuName"]
         purchase_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         price = goods["price"]
         payment = price * sku_num
-        inventory = goods["inventory"] - sku_num
         order_number = create_numbering(16)
         status = "To_Be_Delivered"
-
-        # 更新货物的数量
-        Goods_se.update_one({"title": name},
-                            {"$set": {"inventory": inventory}})
 
         y_ = Orders.find_one({"name": name, "userTempId": uuid_})
         # 修改订单
@@ -173,7 +160,6 @@ def add_to_cart(sku_id, sku_num):
                                         "purchase_num": sku_num,
                                         "price": price,
                                         "payment": payment,
-                                        "inventory": inventory,
                                         }})
 
         # 增加订单
@@ -182,11 +168,10 @@ def add_to_cart(sku_id, sku_num):
                                "purchase_num": sku_num,
                                "price": price,
                                "payment": payment,
-                               "inventory": inventory,
                                "status": status,
                                "order_number": order_number,
                                "name": name,
-                               "connect_goods_se_id": connect_goods_se_id,
+                               "connect_goods_se_id": connect_goods_se_sku_id,
                                "userTempId": uuid_,
                                "default_img": default_img,
                                "isChecked": 0,
@@ -215,8 +200,8 @@ def cart_list():
         info = Orders.find({"userTempId": x_}, {"_id": 0, "userTempId": 0})
 
     for x in info:
+        x['price'] = int(x['price'])
         data[0]["cartInfoList"].append(x)
-
     return jsonify({
         "code": 200,
         "message": "成功",
@@ -229,7 +214,7 @@ def cart_list():
 @bp.route("/deleteCart/<string:sku_id>", methods=["DELETE"])
 def delete_cart(sku_id):
     sku_id = int(sku_id)
-    info = Orders.find_one({"connect_goods_se_id": sku_id})
+    info = Orders.find_one({"connect_goods_se_sku_id": sku_id})
     Orders.delete_one(info)
     return jsonify({
         "code": 200,
@@ -279,7 +264,7 @@ def auth_trade():
         })
 
     for i, y_ in enumerate(detail_list, start=1):
-        price += y_["payment"]
+        price += int(y_["payment"])
         detail_array_list.append({
             "id": y_["connect_goods_se_id"],
             "orderId": i,
@@ -365,7 +350,7 @@ def order_payment(order_id):
     total_price = 0
 
     for x_ in order_list:
-        total_price += x_["orderPrice"]
+        total_price += int(x_["orderPrice"])
 
     data = {
         "codeUrl": "weixin://wxpay/bizpayurl?pr=P0aPBJK",
@@ -432,7 +417,7 @@ def center_order_list(page, limit):
             "id": i,
             "consignee": json.loads(user_order["consignee"]),
             "consigneeTel": json.loads(user_order["consigneeTel"]),
-            "totalAmount": sum([x_["orderPrice"] for x_ in order_detail_list]),
+            "totalAmount": sum([int(x_["orderPrice"]) for x_ in order_detail_list]),
             "orderStatus": "UNPAID",
             "userId": user_id,
             "paymentWay": json.loads(user_order["paymentWay"]),
