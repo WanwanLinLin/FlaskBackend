@@ -29,9 +29,11 @@ app.config["JSON_AS_ASCII"] = False
 init_swagger(app)
 
 # 注册蓝图
+# # 前台部分的模块
 app.register_blueprint(users_bp, url_prefix="/v1/users")
 app.register_blueprint(trades_bp, url_prefix="/v1/trades")
 app.register_blueprint(goods_bp, url_prefix="/v1/goods")
+# # 后台管理部分的模块
 app.register_blueprint(account_bp, url_prefix="/v1/admin")
 app.register_blueprint(admin_trade_mark_bp, url_prefix="/v1/admin/product")
 app.register_blueprint(admin_file_controller_bp, url_prefix="/v1/admin/fileController")
@@ -42,7 +44,7 @@ app.register_blueprint(admin_sku_management_bp, url_prefix="/v1/admin/skuManagem
 
 @app.route("/", methods=["GET", "POST"])
 def hello():
-    return "There will be a flask project!!"
+    return "There will be a flask-vue project!!"
 
 
 if __name__ == '__main__':

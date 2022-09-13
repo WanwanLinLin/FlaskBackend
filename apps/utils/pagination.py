@@ -11,4 +11,4 @@ def my_pagination(records, page, limit):
     records = records[limit_start:page * limit]
     # 获取分页总数
     pages = int(math.ceil(total / limit))
-    return page, total, records
+    return pages, total, records

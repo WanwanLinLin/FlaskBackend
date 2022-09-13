@@ -24,25 +24,25 @@ def login():
         LoginValidate(**request.get_json())
     except error_wrappers.ValidationError as e:
         return e.json()
-    else:
-        username = request.json.get("username")
-        password = request.json.get("password")
-        user = User.find_one({"username": username, "password": password})
-        if user:
-            token_jwt = create_jwt(username, password)
-            r.setex(username, 7 * 24 * 60 * 60, token_jwt)
-            nick_name = user["name"]
-            user_id = user["id"]
-            data = {"nickName": nick_name,
-                    "name": username,
-                    "userId": user_id,
-                    "token": token_jwt}
-            return jsonify({
-                "code": 200,
-                "message": "成功",
-                "data": data,
-                "ok": True
-            })
+
+    username = request.json.get("username")
+    password = request.json.get("password")
+    user = User.find_one({"username": username, "password": password})
+    if user:
+        token_jwt = create_jwt(username, password)
+        r.setex(username, 7 * 24 * 60 * 60, token_jwt)
+        nick_name = user["name"]
+        user_id = user["id"]
+        data = {"nickName": nick_name,
+                "name": username,
+                "userId": user_id,
+                "token": token_jwt}
+        return jsonify({
+            "code": 200,
+            "message": "成功",
+            "data": data,
+            "ok": True
+        })
 
     return jsonify({
         "code": 404,

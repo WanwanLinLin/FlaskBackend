@@ -46,7 +46,7 @@ def login_required(func):
             payload = jwt.decode(auth_jwt, SALT, algorithms=['HS256'])
             "获取载荷中的信息赋值给g对象"
             g.username = payload.get("username")
-            print(g.username)
+            # print(g.username)
             assert r.get(g.username) == auth_jwt
         except Exception as e:
             print(e)

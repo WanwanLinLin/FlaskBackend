@@ -35,7 +35,6 @@ def get_base_category_list():
                      "categoryChild": []})
         l = SeCategoryListModel.query.filter(SeCategoryListModel.category_par == x.id).all()
         if l:
-
             for i_, y in enumerate(l, start=1):
                 data[i - 1]["categoryChild"].append({"categoryName": y.name,
                                                      "categoryId": y.id,
@@ -101,6 +100,13 @@ def list_():
 
         for y in attrs_info:
             attrs_list.append(y)
+
+        # 判断商品的状态是上架还是下架
+        is_sale_or_cancel_sale = []
+        for x_ in goods_list:
+            if x_["isSale"] == 1:
+                is_sale_or_cancel_sale.append(x_)
+        goods_list = is_sale_or_cancel_sale
 
         # 首页默认分页效果
         limit_start = (page_no - 1) * page_size
@@ -206,6 +212,12 @@ def list_():
                             props_list.append(z)
         goods_list = props_list
 
+    # 判断商品的状态是上架还是下架
+    is_sale_or_cancel_sale = []
+    for x_ in goods_list:
+        if x_["isSale"] == 1:
+            is_sale_or_cancel_sale.append(x_)
+    goods_list = is_sale_or_cancel_sale
 
     total = len(goods_list)
     # 采用切片方式方便分页

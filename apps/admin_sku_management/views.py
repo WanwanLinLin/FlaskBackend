@@ -132,7 +132,7 @@ def save_sku_info():
         "category1Id": str(category1_id),
         "skuDefualtImg": sku_default_img,
         "defualtImg": sku_default_img,
-        "isSale": True,
+        "isSale": 1,
         "skuImageList": new_sku_image_list,
         "skuAttrValueList": new_sku_attr_value_list,
         "skuSaleAttrValueList": new_sku_sale_attr_value_list
@@ -167,8 +167,8 @@ def find_sku_by_spu_id(spu_id):
 @bp.route("/product/list/<int:page>/<int:limit>", methods=["GET", "POST"])
 def get_sku_list(page, limit):
     sku_list = list(Goods_se_details_sku.find({},
-                                          {"_id": 0, "skuImageList": 0,
-                                           "skuAttrValueList": 0, "skuSaleAttrValueList": 0}))
+                                              {"_id": 0, "skuImageList": 0,
+                                               "skuAttrValueList": 0, "skuSaleAttrValueList": 0}))
     # 实现简单的分页效果
     # 该变量用于表示跳过前面多少条
     limit_start = (page - 1) * limit
@@ -192,4 +192,88 @@ def get_sku_list(page, limit):
         "message": "获取成功",
         "data": data,
         "ok": True
+    })
+
+
+# SKU上架的接口
+@bp.route("/product/onSale/<int:sku_id>", methods=["GET", "POST"])
+def on_sale(sku_id):
+    Goods_se_details_sku.update_one({"id": sku_id}, {"$set": {"isSale": 1}})
+    return jsonify({
+        "code": 200,
+        "message": "商品上架成功！",
+        "data": None,
+        "ok": True
+    })
+
+
+# SKU下架的接口
+@bp.route("/product/cancelSale/<int:sku_id>", methods=["GET", "POST"])
+def cancel_sale(sku_id):
+    Goods_se_details_sku.update_one({"id": sku_id}, {"$set": {"isSale": 0}})
+    return jsonify({
+        "code": 200,
+        "message": "商品下架成功！",
+        "data": None,
+        "ok": True
+    })
+
+
+# 获取SKU详情的接口
+@bp.route("/product/getSkuById/<int:sku_id>", methods=["GET", "POST"])
+def get_sku_by_id(sku_id):
+    sku_info = Goods_se_details_sku.find_one({"id": sku_id}, {"_id": 0})
+    new_sku_attr_value_list = []
+    new_sku_sale_attr_value_list = []
+
+    for i, x_ in enumerate(sku_info["skuAttrValueList"], start=1):
+        attr_name = Goods_se_attrs.find_one({"attrId": int(x_["attrId"])})["attrName"]
+        new_sku_attr_value_list.append({
+            "id": x_["id"],
+            "attrId": int(x_["attrId"]),
+            "valueId": int(x_["valueId"]),
+            "skuId": x_["skuId"],
+            "attrName": attr_name,
+            "valueName": x_["valueName"]
+        })
+
+    for i, x_ in enumerate(sku_info["skuSaleAttrValueList"], start=1):
+        spu_info = Goods_se_details.find_one({"spuId": sku_info["spuId"]})
+        for y_ in spu_info["spuSaleAttrList"]:
+            if x_["saleAttrId"] == str(y_["id"]):
+                sku_sale_attr_name = y_["saleAttrName"]
+                for z_ in y_["spuSaleAttrValueList"]:
+                    if x_["saleAttrValueId"] == str(z_["id"]):
+                        sku_sale_attr_value_name = z_["saleAttrValueName"]
+                        new_sku_sale_attr_value_list.append({
+                            "id": x_["id"],
+                            "skuId": sku_id,
+                            "spuId": sku_info["spuId"],
+                            "saleAttrValueId": int(x_["saleAttrValueId"]),
+                            "saleAttrId": int(x_["saleAttrId"]),
+                            "saleAttrName": sku_sale_attr_name,
+                            "saleAttrValueName": sku_sale_attr_value_name
+                        })
+
+    data = {
+        "id": sku_info["id"],
+        "spuId": sku_info["spuId"],
+        "price": float(sku_info["price"]),
+        "skuName": sku_info["skuName"],
+        "skuDesc": sku_info["skuDesc"],
+        "weight": sku_info["weight"],
+        "tmId": sku_info["tmId"],
+        "category3Id": int(sku_info["category3Id"]),
+        "skuDefaultImg": sku_info["defualtImg"],
+        "isSale": sku_info["isSale"],
+        "createTime": sku_info["createTime"],
+        "skuImageList": sku_info["skuImageList"],
+        "skuAttrValueList": new_sku_attr_value_list,
+        "skuSaleAttrValueList": new_sku_sale_attr_value_list
+    }
+    return jsonify({
+        "code": 200,
+        "message": "获取成功！",
+        "data": data,
+        "ok": False
     })
