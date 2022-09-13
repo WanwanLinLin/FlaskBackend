@@ -5,6 +5,7 @@ from .validate import UpdateOrSaveSpuInfo
 from flask import Blueprint, request, jsonify
 from .models import Goods_se_sale_attrs, Goods_se_image_list, Goods_se_details_sku
 from apps.admin_trade_mark import Goods_trademark
+from apps.auth import permission_required
 from apps.goods import Goods_se, Goods_se_attrs, Goods_se_details
 
 bp = Blueprint("admin_spu_management", __name__)
@@ -12,6 +13,7 @@ bp = Blueprint("admin_spu_management", __name__)
 
 # 获取SPU列表的接口
 @bp.route("/product/<int:page>/<int:limit>", methods=["GET", "POST"])
+@permission_required
 def get_spu_list(page, limit):
     category3_id = request.args.get("category3Id")
     category3_id = str(category3_id)
@@ -58,6 +60,7 @@ def get_spu_list(page, limit):
 
 # 获取SPU基础属性的接口
 @bp.route("/product/baseSaleAttrList", methods=["GET", "POST"])
+@permission_required
 def get_base_sale_attr_list():
     sale_attr_list = list(Goods_se_sale_attrs.find({}, {"_id": 0}))
 
@@ -71,6 +74,7 @@ def get_base_sale_attr_list():
 
 # 获取SPU基本信息的接口
 @bp.route("/product/getSpuById/<int:spu_id>", methods=["GET", "POST"])
+@permission_required
 def get_spu_by_id(spu_id):
     spu_info = Goods_se_details.find_one({"spuId": spu_id}, {"_id": 0})
     if not spu_info:
@@ -99,6 +103,7 @@ def get_spu_by_id(spu_id):
 
 # 获取SPU图片的接口
 @bp.route("/product/spuImageList/<int:spu_id>", methods=["GET", "POST"])
+@permission_required
 def get_spu_image_list(spu_id):
     spu_image_list = list(Goods_se_image_list.find({"spuId": spu_id}, {"_id": 0}))
 
@@ -112,6 +117,7 @@ def get_spu_image_list(spu_id):
 
 # 修改SPU信息的接口
 @bp.route("/product/updateSpuInfo", methods=["GET", "POST"])
+@permission_required
 def update_spu_info():
     try:
         UpdateOrSaveSpuInfo(**request.get_json())
@@ -183,6 +189,7 @@ def update_spu_info():
 
 # 添加SPU信息的接口
 @bp.route("/product/saveSpuInfo", methods=["GET", "POST"])
+@permission_required
 def save_spu_info():
     try:
         UpdateOrSaveSpuInfo(**request.get_json())
@@ -266,6 +273,7 @@ def save_spu_info():
 
 # 删除相应SPU信息的接口
 @bp.route("/product/deleteSpu/<int:spu_id>", methods=["DELETE"])
+@permission_required
 def delete_spu(spu_id):
     # 删除Goods_details中的信息
     Goods_se_details.delete_one({"spuId": spu_id})

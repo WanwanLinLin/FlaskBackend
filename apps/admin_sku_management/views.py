@@ -8,6 +8,7 @@ from .validate import SaveSkuInfo
 from pydantic import error_wrappers
 from .models import Goods_se_details_sku
 from flask import request, jsonify, Blueprint
+from apps.auth import permission_required
 from apps.admin_trade_mark import Goods_trademark
 from apps.admin_spu_management import Goods_se_image_list
 from apps.goods import (Goods_se, Goods_se_attrs, Goods_se_details,
@@ -18,6 +19,7 @@ bp = Blueprint("admin_sku_management", __name__)
 
 # 获取某个SPU全部图片的接口
 @bp.route("/product/spuImageList/<int:spu_id>", methods=["GET", "POST"])
+@permission_required
 def get_spu_image_list(spu_id):
     spu_image_list = list(Goods_se_image_list.find({"spuId": spu_id}, {"_id": 0}))
     data = []
@@ -39,6 +41,7 @@ def get_spu_image_list(spu_id):
 
 # 获取某个SPU全部销售属性的接口
 @bp.route("/product/spuSaleAttrList/<int:spu_id>", methods=["GET", "POST"])
+@permission_required
 def get_spu_sale_attr_list(spu_id):
     spu_sale_attr_list = Goods_se_details.find_one({"spuId": spu_id})["spuSaleAttrList"]
 
@@ -52,6 +55,7 @@ def get_spu_sale_attr_list(spu_id):
 
 # 保存SKU信息的接口
 @bp.route("/product/saveSkuInfo", methods=["GET", "POST"])
+@permission_required
 def save_sku_info():
     try:
         SaveSkuInfo(**request.get_json())
@@ -151,6 +155,7 @@ def save_sku_info():
 
 # 查找某个SPU对应的所有SKU的接口
 @bp.route("/product/findBySpuId/<int:spu_id>", methods=["GET", "POST"])
+@permission_required
 def find_sku_by_spu_id(spu_id):
     data = list(Goods_se_details_sku.find({"spuId": spu_id},
                                           {"_id": 0, "skuImageList": 0,
@@ -165,6 +170,7 @@ def find_sku_by_spu_id(spu_id):
 
 # 展示所有SKU的接口
 @bp.route("/product/list/<int:page>/<int:limit>", methods=["GET", "POST"])
+@permission_required
 def get_sku_list(page, limit):
     sku_list = list(Goods_se_details_sku.find({},
                                               {"_id": 0, "skuImageList": 0,
@@ -197,6 +203,7 @@ def get_sku_list(page, limit):
 
 # SKU上架的接口
 @bp.route("/product/onSale/<int:sku_id>", methods=["GET", "POST"])
+@permission_required
 def on_sale(sku_id):
     Goods_se_details_sku.update_one({"id": sku_id}, {"$set": {"isSale": 1}})
     return jsonify({
@@ -209,6 +216,7 @@ def on_sale(sku_id):
 
 # SKU下架的接口
 @bp.route("/product/cancelSale/<int:sku_id>", methods=["GET", "POST"])
+@permission_required
 def cancel_sale(sku_id):
     Goods_se_details_sku.update_one({"id": sku_id}, {"$set": {"isSale": 0}})
     return jsonify({
@@ -221,6 +229,7 @@ def cancel_sale(sku_id):
 
 # 获取SKU详情的接口
 @bp.route("/product/getSkuById/<int:sku_id>", methods=["GET", "POST"])
+@permission_required
 def get_sku_by_id(sku_id):
     sku_info = Goods_se_details_sku.find_one({"id": sku_id}, {"_id": 0})
     new_sku_attr_value_list = []

@@ -2,6 +2,7 @@
 from .validate import SaveAttrInfo
 from pydantic import error_wrappers
 from flask import Blueprint, request, jsonify
+from apps.auth import permission_required
 from apps.goods import Goods_se, Goods_se_attrs, Goods_se_details
 from apps.goods import CategoryListModel, SeCategoryListModel, ThCategoryListModel
 
@@ -10,6 +11,7 @@ bp = Blueprint("admin_category_management", __name__)
 
 # 获取商品一级分类的接口
 @bp.route("/getCategory1", methods=["GET", "POST"])
+@permission_required
 def get_category1():
     category1_info = CategoryListModel.query.all()
     category1_list = []
@@ -31,6 +33,7 @@ def get_category1():
 
 # 获取商品二级分类的接口
 @bp.route("/getCategory2/<int:category1_id>", methods=["GET", "POST"])
+@permission_required
 def get_category2(category1_id):
     category2_info = SeCategoryListModel.query.filter(SeCategoryListModel.category_par == category1_id).all()
     category2_list = []
@@ -50,6 +53,7 @@ def get_category2(category1_id):
 
 # 获取商品三级分类的接口
 @bp.route("/getCategory3/<int:category2_id>", methods=["GET", "POST"])
+@permission_required
 def get_category3(category2_id):
     category3_info = ThCategoryListModel.query.filter(ThCategoryListModel.category_par == category2_id).all()
     category3_list = []
@@ -69,6 +73,7 @@ def get_category3(category2_id):
 
 # 获取商品属性的接口
 @bp.route("/attrInfoList/<int:category1_id>/<int:category2_id>/<int:category3_id>", methods=["GET", "POST"])
+@permission_required
 def get_attr_info_list(category1_id, category2_id, category3_id):
     category3_id = str(category3_id)
     data = []
@@ -99,6 +104,7 @@ def get_attr_info_list(category1_id, category2_id, category3_id):
 
 # 这个是添加属性或者修改属性的接口
 @bp.route("/saveAttrInfo", methods=["GET", "POST"])
+@permission_required
 def save_attr_info():
     try:
         SaveAttrInfo(**request.get_json())
@@ -175,6 +181,7 @@ def save_attr_info():
 
 # 这是删除属性的接口
 @bp.route("/deleteAttr/<int:attr_id>", methods=["GET", "POST"])
+@permission_required
 def delete_attr(attr_id):
     Goods_se_attrs.delete_one({"attrId": attr_id})
     return jsonify({

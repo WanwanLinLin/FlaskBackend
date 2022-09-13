@@ -12,6 +12,7 @@ bp = Blueprint("admin_trade_mark", __name__)
 
 # 一次性获取所有品牌的接口
 @bp.route("/baseTrademark/getTrademarkList", methods=["GET", "POST"])
+@permission_required
 def get_trademark_list():
     trademark_list = list(Goods_trademark.find({}))
     data = []
