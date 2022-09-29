@@ -1,0 +1,112 @@
+{
+    "_id" : ObjectId("6315a71bce4b3825b46226b9"),
+    "id" : NumberInt(8),
+    "spuId" : NumberInt(13),
+    "imgName" : "三上悠亚.png",
+    "imgUrl" : "http://127.0.0.1:8000/static/category_image/XNaBTx9VJeA_三上悠亚.png"
+}
+{
+    "_id" : ObjectId("63186e810f8262555225241a"),
+    "id" : NumberInt(9),
+    "spuId" : NumberInt(1),
+    "imgName" : "桂林卤粉加个蛋.jpeg",
+    "imgUrl" : "http://127.0.0.1:8000/static/category_image/qzyWiaRRONo_桂林卤粉加个蛋.jpeg"
+}
+{
+    "_id" : ObjectId("631abdd44349bc6650ee4ffa"),
+    "id" : NumberInt(10),
+    "spuId" : NumberInt(3),
+    "imgName" : "mnah_heji.png",
+    "imgUrl" : "http://127.0.0.1:8000/static/category_image/7kqyzRKyn68_mnah_heji.png"
+}
+{
+    "_id" : ObjectId("631abdd44349bc6650ee4ffb"),
+    "id" : NumberInt(11),
+    "spuId" : NumberInt(3),
+    "imgName" : "mnah_heji_2.png",
+    "imgUrl" : "http://127.0.0.1:8000/static/category_image/sr4sWUVBJX0_mnah_heji_2.png"
+}
+{
+    "_id" : ObjectId("631abdd44349bc6650ee4ffc"),
+    "id" : NumberInt(12),
+    "spuId" : NumberInt(3),
+    "imgName" : "mnah_heji_3.png",
+    "imgUrl" : "http://127.0.0.1:8000/static/category_image/j1WTbvtDlt0_mnah_heji_3.png"
+}
+{
+    "_id" : ObjectId("631ac0334ce043d4fa7a4d8b"),
+    "id" : NumberInt(13),
+    "spuId" : 14.0,
+    "imgName" : "名侦探柯南.jpg",
+    "imgUrl" : "http://127.0.0.1:8000/static/category_image/u3NpVtwNR6I_名侦探柯南.jpg"
+}
+{
+    "_id" : ObjectId("631ac0334ce043d4fa7a4d8c"),
+    "id" : NumberInt(14),
+    "spuId" : 14.0,
+    "imgName" : "贝克街的亡灵1.jpeg",
+    "imgUrl" : "http://127.0.0.1:8000/static/category_image/G91DrQJrmks_贝克街的亡灵1.jpeg"
+}
+{
+    "_id" : ObjectId("631ad2fe99da1793b96c5e20"),
+    "id" : NumberInt(15),
+    "spuId" : 15.0,
+    "imgName" : "梦乃爱华yyds1.jpg",
+    "imgUrl" : "http://127.0.0.1:8000/static/category_image/PT7OCsiJKH8_梦乃爱华yyds1.jpg"
+}
+{
+    "_id" : ObjectId("631ad2fe99da1793b96c5e21"),
+    "id" : NumberInt(16),
+    "spuId" : 15.0,
+    "imgName" : "梦乃爱华yyds2.jpg",
+    "imgUrl" : "http://127.0.0.1:8000/static/category_image/pjrfRE0nuQ_梦乃爱华yyds2.jpg"
+}
+{
+    "_id" : ObjectId("631ad2fe99da1793b96c5e22"),
+    "id" : NumberInt(17),
+    "spuId" : 15.0,
+    "imgName" : "梦乃爱华yyds3.jpg",
+    "imgUrl" : "http://127.0.0.1:8000/static/category_image/LQER0TsyB0M_梦乃爱华yyds3.jpg"
+}
+{
+    "_id" : ObjectId("631feceb4a88695d2e480348"),
+    "id" : NumberInt(21),
+    "spuId" : 16.0,
+    "imgName" : "黄焖鸡米饭1.jpg",
+    "imgUrl" : "http://127.0.0.1:8000/static/category_image/AEg9Yahqsdo_黄焖鸡米饭1.jpg"
+}
+{
+    "_id" : ObjectId("631feceb4a88695d2e480349"),
+    "id" : NumberInt(22),
+    "spuId" : 16.0,
+    "imgName" : "黄焖鸡米饭2.jpg",
+    "imgUrl" : "http://127.0.0.1:8000/static/category_image/lwl3MAApnjQ_黄焖鸡米饭2.jpg"
+}
+{
+    "_id" : ObjectId("631feceb4a88695d2e48034a"),
+    "id" : NumberInt(23),
+    "spuId" : 16.0,
+    "imgName" : "黄焖鸡米饭3.jpg",
+    "imgUrl" : "http://127.0.0.1:8000/static/category_image/b7AKcqwPEoE_黄焖鸡米饭3.jpg"
+}
+{
+    "_id" : ObjectId("631ff13a4a88695d2e48034d"),
+    "id" : NumberInt(24),
+    "spuId" : 17.0,
+    "imgName" : "三上悠亚_3.jpg",
+    "imgUrl" : "http://127.0.0.1:8000/static/category_image/UEDsAkAGLk_三上悠亚_3.jpg"
+}
+{
+    "_id" : ObjectId("6320217190b3eadd0727fd07"),
+    "id" : NumberInt(25),
+    "spuId" : 18.0,
+    "imgName" : "尼克_1.jpg",
+    "imgUrl" : "http://127.0.0.1:8000/static/category_image/VXRHDFUvRmU_尼克_1.jpg"
+}
+{
+    "_id" : ObjectId("6320217190b3eadd0727fd08"),
+    "id" : NumberInt(26),
+    "spuId" : 18.0,
+    "imgName" : "尼克_2.jpg",
+    "imgUrl" : "http://127.0.0.1:8000/static/category_image/2DkLQ6VYAd8_尼克_2.jpg"
+}

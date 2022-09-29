@@ -1,0 +1,118 @@
+{
+    "_id" : ObjectId("62e0d36dba6f16c55099c039"),
+    "id" : NumberInt(1),
+    "shipping_address" : "广东省珠海市天上人间会所",
+    "customer_number" : NumberLong(13100572930),
+    "username" : "BlueSky",
+    "connect_username" : "BlueSky",
+    "isDefault" : "1",
+    "provinceId" : "1",
+    "regionId" : "1"
+}
+{
+    "_id" : ObjectId("62e0d36eba6f16c55099c03a"),
+    "id" : NumberInt(2),
+    "shipping_address" : "广东省深圳市天上人间会所",
+    "customer_number" : NumberLong(13100572930),
+    "username" : "BlueSky",
+    "connect_username" : "BlueSky",
+    "isDefault" : "0",
+    "provinceId" : "1",
+    "regionId" : "1"
+}
+{
+    "_id" : ObjectId("62e0d36fba6f16c55099c03b"),
+    "id" : NumberInt(3),
+    "shipping_address" : "广东省广州市天上人间会所",
+    "customer_number" : NumberLong(13100572930),
+    "username" : "BlueSky",
+    "connect_username" : "BlueSky",
+    "isDefault" : "0",
+    "provinceId" : "1",
+    "regionId" : "1"
+}
+{
+    "_id" : ObjectId("62e0d36fba6f16c55099c03c"),
+    "id" : NumberInt(4),
+    "shipping_address" : "广东省惠州市天上人间会所",
+    "customer_number" : NumberLong(13100572930),
+    "username" : "BlueSky",
+    "connect_username" : "BlueSky",
+    "isDefault" : "0",
+    "provinceId" : "1",
+    "regionId" : "1"
+}
+{
+    "_id" : ObjectId("62e0d370ba6f16c55099c03d"),
+    "id" : NumberInt(5),
+    "shipping_address" : "广东省梅州市天上人间会所",
+    "customer_number" : NumberLong(13100572930),
+    "username" : "BlueSky",
+    "connect_username" : "BlueSky",
+    "isDefault" : "0",
+    "provinceId" : "1",
+    "regionId" : "1"
+}
+{
+    "_id" : ObjectId("62e0d370ba6f16c55099c03e"),
+    "id" : NumberInt(6),
+    "shipping_address" : "广东省佛山市天上人间会所",
+    "customer_number" : NumberLong(13100572930),
+    "username" : "BlueSky",
+    "connect_username" : "BlueSky",
+    "isDefault" : "0",
+    "provinceId" : "1",
+    "regionId" : "1"
+}
+{
+    "_id" : ObjectId("62e0e116a3fd87f0ab08dc58"),
+    "id" : NumberInt(7),
+    "shipping_address" : "广东省东莞市天上人间会所",
+    "customer_number" : NumberLong(13100572930),
+    "username" : "Green",
+    "connect_username" : "亚瑟摩根"
+}
+{
+    "_id" : ObjectId("62e0e117a3fd87f0ab08dc59"),
+    "id" : NumberInt(8),
+    "shipping_address" : "广东省东莞市天上人间会所",
+    "customer_number" : NumberLong(13100572930),
+    "username" : "Green",
+    "connect_username" : "亚瑟摩根"
+}
+{
+    "_id" : ObjectId("62e0e118a3fd87f0ab08dc5a"),
+    "id" : NumberInt(9),
+    "shipping_address" : "广东省东莞市天上人间会所",
+    "customer_number" : NumberLong(13100572930),
+    "username" : "Green",
+    "connect_username" : "亚瑟摩根"
+}
+{
+    "_id" : ObjectId("62e0e118a3fd87f0ab08dc5b"),
+    "id" : NumberInt(10),
+    "shipping_address" : "广东省东莞市天上人间会所",
+    "customer_number" : NumberLong(13100572930),
+    "username" : "Green",
+    "connect_username" : "亚瑟摩根"
+}
+{
+    "_id" : ObjectId("62e0e119a3fd87f0ab08dc5c"),
+    "id" : NumberInt(11),
+    "shipping_address" : "汕头省东莞市天上人间会所",
+    "customer_number" : NumberLong(13100572930),
+    "username" : "Green",
+    "connect_username" : "Troy",
+    "isDefault" : "1",
+    "provinceId" : "1",
+    "regionId" : "1"
+}
+{
+    "_id" : ObjectId("62e0e119a3fd87f0ab08dc5d"),
+    "id" : NumberInt(12),
+    "shipping_address" : "广东省东莞市天上人间会所",
+    "customer_number" : NumberLong(13100572930),
+    "username" : "Green",
+    "connect_username" : "亚瑟摩根",
+    "isDefault" : "1"
+}

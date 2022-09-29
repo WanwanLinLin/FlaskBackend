@@ -1,0 +1,160 @@
+{
+    "_id" : ObjectId("62eb751b150ceb65a11fde5c"),
+    "attrId" : 2.0,
+    "attrValueList" : [
+        "888~999",
+        "0~887"
+    ],
+    "attrName" : "价格",
+    "connect_name" : "梦乃爱华",
+    "id" : 2.0,
+    "connect_category3Id" : "2",
+    "category_level" : "3"
+}
+{
+    "_id" : ObjectId("62eb7b73150ceb65a11fde5d"),
+    "attrId" : 3.0,
+    "attrValueList" : [
+        "辣",
+        "超级辣",
+        "你干嘛辣"
+    ],
+    "attrName" : "口味",
+    "connect_name" : "桂林卤粉",
+    "id" : 3.0,
+    "connect_category3Id" : "4",
+    "category_level" : "3"
+}
+{
+    "_id" : ObjectId("62f1c1d6643298307f741bc8"),
+    "attrId" : 4.0,
+    "attrValueList" : [
+        "4~8",
+        "9~16",
+        "17~87",
+        "88~888"
+    ],
+    "attrName" : "价格",
+    "connect_name" : "干捞螺蛳粉",
+    "id" : 4.0,
+    "connect_category3Id" : "4",
+    "category_level" : "3"
+}
+{
+    "_id" : ObjectId("630da5cc0bcfea5954e733e5"),
+    "attrId" : 5.0,
+    "attrValueList" : [
+        "2022.8.31",
+        "2022.9.6"
+    ],
+    "attrName" : "发行时间",
+    "id" : 5.0,
+    "connect_category3Id" : "2",
+    "category_level" : "3"
+}
+{
+    "_id" : ObjectId("630de3e8f8901cc546278bf5"),
+    "attrId" : 6.0,
+    "attrValueList" : [
+        "F",
+        "E",
+        "D",
+        "C",
+        "B"
+    ],
+    "attrName" : "ZB大小",
+    "id" : 6.0,
+    "connect_category3Id" : "2",
+    "category_level" : "3"
+}
+{
+    "_id" : ObjectId("631ab7d4f3827137b38944b6"),
+    "attrId" : 7.0,
+    "attrValueList" : [
+        "剧场版",
+        "枪版",
+        "动漫连续剧版"
+    ],
+    "attrName" : "名侦探柯南",
+    "id" : 7.0,
+    "connect_category3Id" : "1",
+    "category_level" : "3"
+}
+{
+    "_id" : ObjectId("631ad27199da1793b96c5e1f"),
+    "attrId" : 8.0,
+    "attrValueList" : [
+        "1年以内",
+        "2~5年",
+        "5年以上"
+    ],
+    "attrName" : "工作经验",
+    "id" : 8.0,
+    "connect_category3Id" : "2",
+    "category_level" : "3"
+}
+{
+    "_id" : ObjectId("631ad4e5474985f157ff6dce"),
+    "attrId" : 9.0,
+    "attrValueList" : [
+        "满20减19",
+        "满100减88",
+        "美美的团会员立刻8折"
+    ],
+    "attrName" : "店铺优惠",
+    "id" : 9.0,
+    "connect_category3Id" : "5",
+    "category_level" : "3"
+}
+{
+    "_id" : ObjectId("631ad507474985f157ff6dcf"),
+    "attrId" : 10.0,
+    "attrValueList" : [
+        "30分钟以内",
+        "1小时以内",
+        "2天以上"
+    ],
+    "attrName" : "到货时间",
+    "id" : 10.0,
+    "connect_category3Id" : "5",
+    "category_level" : "3"
+}
+{
+    "_id" : ObjectId("6320208d90b3eadd0727fd04"),
+    "attrId" : 11.0,
+    "attrValueList" : [
+        "52",
+        "53",
+        "66"
+    ],
+    "attrName" : "尺码",
+    "id" : 11.0,
+    "connect_category3Id" : "6",
+    "category_level" : "3"
+}
+{
+    "_id" : ObjectId("632020c290b3eadd0727fd05"),
+    "attrId" : 12.0,
+    "attrValueList" : [
+        "6个月",
+        "一年",
+        "五年"
+    ],
+    "attrName" : "质保期限",
+    "id" : 12.0,
+    "connect_category3Id" : "6",
+    "category_level" : "3"
+}
+{
+    "_id" : ObjectId("632020db90b3eadd0727fd06"),
+    "attrId" : 13.0,
+    "attrValueList" : [
+        "复古",
+        "时尚",
+        "稳重"
+    ],
+    "attrName" : "风格",
+    "id" : 13.0,
+    "connect_category3Id" : "6",
+    "category_level" : "3"
+}

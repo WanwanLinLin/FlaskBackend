@@ -1,0 +1,90 @@
+{
+    "_id" : ObjectId("6308397f2337453535bada5e"),
+    "id" : 1.0,
+    "tmName" : "桂林卤粉",
+    "logoUrl" : "http://127.0.0.1:8000/static/trademark/桂林米粉.png",
+    "category1Id" : "2",
+    "category1Name" : "外卖、美食",
+    "category2Id" : "3",
+    "category2Name" : "不饿了么",
+    "category3Id" : "4",
+    "category3Name" : "桂林特产"
+}
+{
+    "_id" : ObjectId("63083a07f34dde7288b6255b"),
+    "id" : 2.0,
+    "tmName" : "梦乃爱华",
+    "logoUrl" : "http://127.0.0.1:8000/static/trademark/梦乃爱华.png",
+    "category1Id" : "1",
+    "category1Name" : "图书、音像、电子书刊",
+    "category2Id" : "2",
+    "category2Name" : "岛国电影",
+    "category3Id" : "2",
+    "category3Name" : "人气女优"
+}
+{
+    "_id" : ObjectId("63083ae0f34dde7288b6255c"),
+    "id" : 3.0,
+    "tmName" : "干捞螺蛳粉",
+    "logoUrl" : "http://127.0.0.1:8000/static/trademark/干捞螺蛳粉.png",
+    "category1Id" : "2",
+    "category1Name" : "外卖、美食",
+    "category2Id" : "3",
+    "category2Name" : "不饿了么",
+    "category3Id" : "4",
+    "category3Name" : "桂林特产"
+}
+{
+    "_id" : ObjectId("63083dd1f34dde7288b6255d"),
+    "id" : 4.0,
+    "tmName" : "苍井空",
+    "logoUrl" : "http://127.0.0.1:8000/static/trademark/苍井空.png",
+    "category1Id" : "1",
+    "category1Name" : "图书、音像、电子书刊",
+    "category2Id" : "2",
+    "category2Name" : "岛国电影",
+    "category3Id" : "2",
+    "category3Name" : "人气女优"
+}
+{
+    "_id" : ObjectId("63083e8df34dde7288b6255e"),
+    "id" : 5.0,
+    "tmName" : "黄焖鸡米饭",
+    "logoUrl" : "http://127.0.0.1:8000/static/trademark/黄焖鸡米饭.png",
+    "category1Id" : "2",
+    "category1Name" : "外卖、美食",
+    "category2Id" : "4",
+    "category2Name" : "美美的团",
+    "category3Id" : "5",
+    "category3Name" : "美团优选（送货上门）"
+}
+{
+    "_id" : ObjectId("63083f12f34dde7288b6255f"),
+    "id" : 6.0,
+    "tmName" : "波多野结衣",
+    "logoUrl" : "http://127.0.0.1:8000/static/trademark/波多野结衣.png",
+    "category1Id" : "1",
+    "category1Name" : "图书、音像、电子书刊",
+    "category2Id" : "2",
+    "category2Name" : "岛国电影",
+    "category3Id" : "2",
+    "category3Name" : "人气女优"
+}
+{
+    "_id" : ObjectId("6315752e61ff3c1245c1dac7"),
+    "id" : 7.0,
+    "tmName" : "三上悠亚",
+    "logoUrl" : "http://127.0.0.1:8000/static/trademark/三上悠亚_2.jpg"
+}
+{
+    "_id" : ObjectId("631abf2559132a06d14aa02e"),
+    "id" : 8.0,
+    "tmName" : "名侦探柯南",
+    "logoUrl" : "http://127.0.0.1:8000/static/trademark/名侦探柯南.jpg"
+}
+{
+    "_id" : ObjectId("6320206690b3eadd0727fd03"),
+    "id" : 9.0,
+    "tmName" : "尼克",
+    "logoUrl" : "http://127.0.0.1:8000/static/trademark/尼克_2.jpg"
+}

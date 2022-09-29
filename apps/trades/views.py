@@ -190,7 +190,7 @@ def add_to_cart(sku_id, sku_num):
 def cart_list():
     x_ = request.headers.get("userTempId")
     y_ = request.headers.get('token')
-    print(x_)
+    # print(x_)
     create_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     data = [{"cartInfoList": [], "activityRuleList": None, "createTime": create_time}]
 

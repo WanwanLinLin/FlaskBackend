@@ -1,0 +1,25 @@
+{
+    "_id" : ObjectId("630f15d6536fe351cc305068"),
+    "id" : 1.0,
+    "name" : "选择价格"
+}
+{
+    "_id" : ObjectId("630f1605f34dde7288b625d2"),
+    "id" : 2.0,
+    "name" : "选择版本"
+}
+{
+    "_id" : ObjectId("630f1617f34dde7288b625d3"),
+    "id" : 3.0,
+    "name" : "热门程度"
+}
+{
+    "_id" : ObjectId("630f164af34dde7288b625d4"),
+    "id" : 4.0,
+    "name" : "服务特点"
+}
+{
+    "_id" : ObjectId("630f167df34dde7288b625d5"),
+    "id" : 5.0,
+    "name" : "选择口味"
+}

@@ -1,0 +1,286 @@
+{
+    "_id" : ObjectId("62eb2a01f050536006f2f25c"),
+    "id" : 1.0,
+    "defualtImg" : "http://127.0.0.1:8000/static/category_image/lufen_dan.png",
+    "title" : "桂林卤粉加蛋",
+    "price" : 8.0,
+    "createTime" : "2022-08-3 17:33:04",
+    "tmId" : 1.0,
+    "tmName" : "桂林卤粉",
+    "category1Id" : "2",
+    "category1Name" : "外卖、美食",
+    "category2Id" : "3",
+    "category2Name" : "不饿了么",
+    "category3Id" : "4",
+    "category3Name" : "桂林特产",
+    "hotScore" : 1.0,
+    "attrs" : [
+        "1:4~8:价格",
+        "3:辣:口味",
+        "3:超级辣:口味"
+    ],
+    "inventory" : 586.0,
+    "description" : "营养又美味哈"
+}
+{
+    "_id" : ObjectId("62eb4236150ceb65a11fde4e"),
+    "id" : 2.0,
+    "defualtImg" : "http://127.0.0.1:8000/static/category_image/lufen_xiangcai.png",
+    "title" : "桂林卤粉加香菜",
+    "price" : 6.0,
+    "createTime" : "2022-08-3 17:33:04",
+    "tmId" : 1.0,
+    "tmName" : "桂林卤粉",
+    "category1Id" : "2",
+    "category1Name" : "外卖、美食",
+    "category2Id" : "3",
+    "category2Name" : "不饿了么",
+    "category3Id" : "4",
+    "category3Name" : "桂林特产",
+    "hotScore" : 2.0,
+    "attrs" : [
+        "1:4~8:价格",
+        "3:超级辣:口味"
+    ],
+    "inventory" : 242.0,
+    "description" : "营养又美味哈"
+}
+{
+    "_id" : ObjectId("62eb74a6150ceb65a11fde5b"),
+    "id" : 3.0,
+    "defualtImg" : "http://127.0.0.1:8000/static/category_image/mnah_heji.png",
+    "title" : "梦乃爱华大合辑3",
+    "price" : 888.0,
+    "createTime" : "2022-08-3 17:33:04",
+    "tmId" : 2.0,
+    "tmName" : "梦乃爱华",
+    "category1Id" : "1",
+    "category1Name" : "图书、音像、电子书刊",
+    "category2Id" : "2",
+    "category2Name" : "岛国电影",
+    "category3Id" : "2",
+    "category3Name" : "人气女优",
+    "hotScore" : 3.0,
+    "attrs" : [
+        "2:888~999:价格"
+    ],
+    "inventory" : 655.0,
+    "description" : "真的会上头啊啊啊啊o"
+}
+{
+    "_id" : ObjectId("62f0b980643298307f741bbb"),
+    "id" : 4.0,
+    "defualtImg" : "http://127.0.0.1:8000/static/category_image/lufen_niurou.png",
+    "title" : "桂林卤粉加牛肉",
+    "price" : 16.0,
+    "createTime" : "2022-08-3 17:33:04",
+    "tmId" : 1.0,
+    "tmName" : "桂林卤粉",
+    "category1Id" : "2",
+    "category1Name" : "外卖、美食",
+    "category2Id" : "3",
+    "category2Name" : "不饿了么",
+    "category3Id" : "4",
+    "category3Name" : "桂林特产",
+    "hotScore" : 4.0,
+    "attrs" : [
+        "1:9~16:价格",
+        "3:你干嘛辣:口味"
+    ],
+    "inventory" : 851.0,
+    "description" : "营养又美味哈"
+}
+{
+    "_id" : ObjectId("62f0caef643298307f741bc5"),
+    "id" : 5.0,
+    "defualtImg" : "http://127.0.0.1:8000/static/category_image/mnah_shouchaguan.png",
+    "title" : "梦乃爱华搜查官",
+    "price" : 999.0,
+    "createTime" : "2022-08-3 17:33:04",
+    "tmId" : 2.0,
+    "tmName" : "梦乃爱华",
+    "category1Id" : "1",
+    "category1Name" : "图书、音像、电子书刊",
+    "category2Id" : "2",
+    "category2Name" : "岛国电影",
+    "category3Id" : "2",
+    "category3Name" : "人气女优",
+    "hotScore" : 5.0,
+    "attrs" : [
+        "2:888~1024:价格"
+    ],
+    "inventory" : 909.0,
+    "description" : "真的会上头"
+}
+{
+    "_id" : ObjectId("62f0cb38643298307f741bc6"),
+    "id" : 6.0,
+    "defualtImg" : "http://127.0.0.1:8000/static/category_image/mnah_xiezhen.png",
+    "title" : "梦乃爱华8月写真集",
+    "price" : 8.0,
+    "createTime" : "2022-08-3 17:33:04",
+    "tmId" : 2.0,
+    "tmName" : "梦乃爱华",
+    "category1Id" : "1",
+    "category1Name" : "图书、音像、电子书刊",
+    "category2Id" : "2",
+    "category2Name" : "岛国电影",
+    "category3Id" : "2",
+    "category3Name" : "人气女优",
+    "hotScore" : 6.0,
+    "attrs" : [
+        "2:0~887:价格"
+    ],
+    "inventory" : 899.0,
+    "description" : "真的会上头"
+}
+{
+    "_id" : ObjectId("62f1bed1643298307f741bc7"),
+    "id" : 7.0,
+    "defualtImg" : "http://127.0.0.1:8000/static/category_image/lsf_sanxian.png",
+    "title" : "三鲜干捞螺蛳粉",
+    "price" : 14.0,
+    "createTime" : "2022-08-3 17:33:04",
+    "tmId" : 3.0,
+    "tmName" : "干捞螺蛳粉",
+    "category1Id" : "2",
+    "category1Name" : "外卖、美食",
+    "category2Id" : "3",
+    "category2Name" : "不饿了么",
+    "category3Id" : "4",
+    "category3Name" : "桂林特产",
+    "hotScore" : 1.0,
+    "attrs" : [
+        "4:9~16:价格"
+    ],
+    "inventory" : 926.0,
+    "description" : "营养又美味哈"
+}
+{
+    "_id" : ObjectId("62f20d4b643298307f741bc9"),
+    "id" : 8.0,
+    "defualtImg" : "http://127.0.0.1:8000/static/category_image/lsf_zhujiao.png",
+    "title" : "干捞螺蛳粉加猪脚",
+    "price" : 28.0,
+    "createTime" : "2022-08-3 17:33:04",
+    "tmId" : 3.0,
+    "tmName" : "干捞螺蛳粉",
+    "category1Id" : "2",
+    "category1Name" : "外卖、美食",
+    "category2Id" : "3",
+    "category2Name" : "不饿了么",
+    "category3Id" : "4",
+    "category3Name" : "桂林特产",
+    "hotScore" : 1.0,
+    "attrs" : [
+        "4:17~87:价格"
+    ],
+    "inventory" : 943.0,
+    "description" : "营养又美味哈"
+}
+{
+    "_id" : ObjectId("62f20d9f643298307f741bca"),
+    "id" : 9.0,
+    "defualtImg" : "http://127.0.0.1:8000/static/category_image/lsf_jijiao.png",
+    "title" : "干捞螺蛳粉加鸡脚(ikun九折)",
+    "price" : 25.0,
+    "createTime" : "2022-08-3 17:33:04",
+    "tmId" : 3.0,
+    "tmName" : "干捞螺蛳粉",
+    "category1Id" : "2",
+    "category1Name" : "外卖、美食",
+    "category2Id" : "3",
+    "category2Name" : "不饿了么",
+    "category3Id" : "4",
+    "category3Name" : "桂林特产",
+    "hotScore" : 1.0,
+    "attrs" : [
+        "4:17~87:价格"
+    ],
+    "inventory" : 953.0,
+    "description" : "营养又美味哈"
+}
+{
+    "_id" : ObjectId("62f20ef6643298307f741bcb"),
+    "id" : 10.0,
+    "defualtImg" : "http://127.0.0.1:8000/static/category_image/lufen_jizhua.png",
+    "title" : "桂林卤粉加鸡脚（ikun九折）",
+    "price" : 16.0,
+    "createTime" : "2022-08-3 17:33:04",
+    "tmId" : 1.0,
+    "tmName" : "桂林卤粉",
+    "category1Id" : "2",
+    "category1Name" : "外卖、美食",
+    "category2Id" : "3",
+    "category2Name" : "不饿了么",
+    "category3Id" : "4",
+    "category3Name" : "桂林特产",
+    "hotScore" : 2.5,
+    "attrs" : [
+        "1:9~16:价格",
+        "3:你干嘛辣:口味"
+    ],
+    "inventory" : 994.0,
+    "description" : "营养又美味哈"
+}
+{
+    "_id" : ObjectId("62f20f34643298307f741bcc"),
+    "id" : 11.0,
+    "defualtImg" : "http://127.0.0.1:8000/static/category_image/lufen_xinpin.png",
+    "title" : "新品桂林卤粉",
+    "price" : 13.0,
+    "createTime" : "2022-08-3 17:33:04",
+    "tmId" : 1.0,
+    "tmName" : "桂林卤粉",
+    "category1Id" : "2",
+    "category1Name" : "外卖、美食",
+    "category2Id" : "3",
+    "category2Name" : "不饿了么",
+    "category3Id" : "4",
+    "category3Name" : "桂林特产",
+    "hotScore" : 1.3,
+    "attrs" : [
+        "1:9~16:价格",
+        "3:你干嘛辣:口味"
+    ],
+    "inventory" : 994.0,
+    "description" : "营养又美味哈"
+}
+{
+    "_id" : ObjectId("62f20ff7643298307f741bcd"),
+    "id" : 12.0,
+    "defualtImg" : "http://127.0.0.1:8000/static/category_image/lufen_chashao.png",
+    "title" : "桂林卤粉加叉烧",
+    "price" : 9.0,
+    "createTime" : "2022-08-3 17:33:04",
+    "tmId" : 1.0,
+    "tmName" : "桂林卤粉",
+    "category1Id" : "2",
+    "category1Name" : "外卖、美食",
+    "category2Id" : "3",
+    "category2Name" : "不饿了么",
+    "category3Id" : "4",
+    "category3Name" : "桂林特产",
+    "hotScore" : 1.3,
+    "attrs" : [
+        "1:9~16:价格",
+        "3:你干嘛辣:口味"
+    ],
+    "inventory" : 989.0,
+    "description" : "营养又美味哈"
+}
+{
+    "_id" : ObjectId("6315a6c9ce4b3825b46226b7"),
+    "id" : 13.0,
+    "defualtImg" : "http://127.0.0.1:8000/static/trademark/三上悠亚_2.jpg",
+    "title" : "三上悠亚",
+    "price" : NumberInt(666),
+    "createTime" : "2022-09-05 15:35:37",
+    "tmId" : NumberInt(7),
+    "tmName" : "三上悠亚",
+    "category3Id" : "2",
+    "hotScore" : 4.0,
+    "attrs" : null,
+    "inventory" : 1000.0,
+    "description" : "三上悠亚两年半嘿嘿嘿"
+}
