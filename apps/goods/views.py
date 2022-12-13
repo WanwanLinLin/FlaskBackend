@@ -1,45 +1,38 @@
 # -*- coding: utf-8 -*-
 import math
 
+from db import SessionLocal
 from .validate import VaListModel
 from pydantic import error_wrappers
 from flask import Blueprint, jsonify, request
 from .models import (Goods, Goods_se_attrs, Goods_se_details_sku,
                      Goods_se_details, CategoryListModel, SeCategoryListModel, ThCategoryListModel)
+from flask_pydantic_spec import FlaskPydanticSpec, Response, Request
+from extension import swagger
 
 bp = Blueprint("goods", __name__)
 
-
-# 展示所有nft的接口
-@bp.route("/display", methods=["GET", "POST"])
-def display():
-    info = list(Goods.find({}, {"_id": 0, "id": 0}))
-    print(info)
-
-    l = []
-    for x in info:
-        l.append(x)
-
-    return jsonify({"info": l})
+session = SessionLocal()
 
 
 # 返回所有类别列表数据(三级联动)的接口
-@bp.route("/getBaseCategoryList", methods=["GET", "POST"])
+@bp.get("/getBaseCategoryList")
+# @swagger.validate(resp=Response(HTTP_200=None, HTTP_403=None), tags=['goods'])
 def get_base_category_list():
-    first_list = CategoryListModel.query.all()
+    first_list = session.query(CategoryListModel).all()
     data = []
 
     for i, x in enumerate(first_list, start=1):
         data.append({"categoryName": x.name,
                      "categoryId": x.id,
                      "categoryChild": []})
-        l = SeCategoryListModel.query.filter(SeCategoryListModel.category_par == x.id).all()
+        l = session.query(SeCategoryListModel).filter(SeCategoryListModel.category_par == x.id).all()
         if l:
             for i_, y in enumerate(l, start=1):
                 data[i - 1]["categoryChild"].append({"categoryName": y.name,
                                                      "categoryId": y.id,
                                                      "categoryChild": []})
-                l_ = ThCategoryListModel.query.filter(ThCategoryListModel.category_par == y.id).all()
+                l_ = session.query(ThCategoryListModel).filter(ThCategoryListModel.category_par == y.id).all()
                 if l_:
                     for z in l_:
 
@@ -52,13 +45,11 @@ def get_base_category_list():
         "code": 200,
         "message": "成功！",
         "ok": True,
-        "data": data
-    }
-    )
-
+        "data": data})
 
 # 展示商品列表的接口
-@bp.route("/list", methods=["GET", "POST"])
+@bp.post("/list")
+@swagger.validate(body=VaListModel, resp=Response(HTTP_200=None, HTTP_403=None), tags=['goods'])
 def list_():
     try:
         VaListModel(**request.get_json())

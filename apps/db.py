@@ -1,14 +1,14 @@
-# -*- coding: utf-8 -*-
-# 初始化并使用 postgresql
-from flask_sqlalchemy import SQLAlchemy
+# -*- coding：utf-8 -*-
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-db = SQLAlchemy(session_options={"expire_on_commit": False})
+# 出租屋的mysql
+SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:2298315584@127.0.0.1:3306/sph_flask?charset=utf8"
 
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL
+)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-def init_database(app):
-    # 本地测试链接
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:linwan@localhost:5432/Flask_Vue'
-    # 线上服务器链接
-    # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://username:password@address:port/db_name'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    db.init_app(app)
+Base = declarative_base()

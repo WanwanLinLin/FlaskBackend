@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from apps.nosql_db import client
-from flask_sqlalchemy import SQLAlchemy
-from apps import db
+from nosql_db import client
+from db import Base
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
 # 订单集合
 Goods = client.goods.Goods
@@ -20,37 +21,37 @@ Goods_se_details_sku = client.goods.Goods_se_details_sku
 
 
 # 一级商品列表模型
-class CategoryListModel(db.Model):
+class CategoryListModel(Base):
     __tablename__ = "first-level-table"
 
-    id = db.Column(db.Integer, primary_key=True, comment="一级表主键")
-    name = db.Column(db.String(64), unique=True, comment="一级类目名称")
+    id = Column(Integer, primary_key=True, comment="一级表主键")
+    name = Column(String(64), unique=True, comment="一级类目名称")
 
     def __repr__(self):
         return f"{self.name}<{self.__class__.__name__}>"
 
 
 # 二级商品列表模型
-class SeCategoryListModel(db.Model):
+class SeCategoryListModel(Base):
     __tablename__ = "second-level-table"
 
-    id = db.Column(db.Integer, primary_key=True, comment="二级表主键")
-    name = db.Column(db.String(64), unique=True, comment="二级类目名称")
-    category_par = db.Column(db.Integer, db.ForeignKey("first-level-table.id"))
-    categoryListModel = db.relationship("CategoryListModel", backref="my_CategoryListModel")
+    id = Column(Integer, primary_key=True, comment="二级表主键")
+    name = Column(String(64), unique=True, comment="二级类目名称")
+    category_par = Column(Integer, ForeignKey("first-level-table.id"))
+    categoryListModel = relationship("CategoryListModel", backref="my_CategoryListModel")
 
     def __repr__(self):
         return f"{self.name}<{self.__class__.__name__}>"
 
 
 # 三级商品列表模型
-class ThCategoryListModel(db.Model):
+class ThCategoryListModel(Base):
     __tablename__ = "third-level-table"
 
-    id = db.Column(db.Integer, primary_key=True, comment="三级表主键")
-    name = db.Column(db.String(64), unique=True, comment="三级类目名称")
-    category_par = db.Column(db.Integer, db.ForeignKey("second-level-table.id"))
-    seCategoryListModel = db.relationship("SeCategoryListModel", backref="my_SeCategoryListModel")
+    id = Column(Integer, primary_key=True, comment="三级表主键")
+    name = Column(String(64), unique=True, comment="三级类目名称")
+    category_par = Column(Integer, ForeignKey("second-level-table.id"))
+    seCategoryListModel = relationship("SeCategoryListModel", backref="my_SeCategoryListModel")
 
     def __repr__(self):
         return f"{self.name}<{self.__class__.__name__}>"
