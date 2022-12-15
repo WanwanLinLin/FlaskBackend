@@ -22,6 +22,7 @@ Goods_se_details_sku = client.goods.Goods_se_details_sku
 
 # 一级商品列表模型
 class CategoryListModel(Base):
+    __table_args__ = {'extend_existing': True}
     __tablename__ = "first-level-table"
 
     id = Column(Integer, primary_key=True, comment="一级表主键")
@@ -33,6 +34,7 @@ class CategoryListModel(Base):
 
 # 二级商品列表模型
 class SeCategoryListModel(Base):
+    __table_args__ = {'extend_existing': True}
     __tablename__ = "second-level-table"
 
     id = Column(Integer, primary_key=True, comment="二级表主键")
@@ -46,6 +48,7 @@ class SeCategoryListModel(Base):
 
 # 三级商品列表模型
 class ThCategoryListModel(Base):
+    __table_args__ = {'extend_existing': True}
     __tablename__ = "third-level-table"
 
     id = Column(Integer, primary_key=True, comment="三级表主键")

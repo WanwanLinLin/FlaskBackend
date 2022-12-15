@@ -7,6 +7,7 @@ from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 
 
 class AdminUser(Base):
+    __table_args__ = {'extend_existing': True}
     __tablename__ = "AdminUser"
 
     id = Column(Integer, primary_key=True, index=True)
