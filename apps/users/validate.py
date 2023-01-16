@@ -4,7 +4,7 @@ import re
 from flask import g
 from .models import User, r
 from typing import List, Optional
-from pydantic import BaseModel, ValidationError, validator
+from pydantic import BaseModel, ValidationError, validator, root_validator
 
 
 class LoginValidate(BaseModel):
@@ -142,6 +142,14 @@ class EditPassword(BaseModel):
         return v
 
 
+class ValToken(BaseModel):
+    Token: str
 
+    # @root_validator(pre=True)
+    # def no(cls, v):
+    #     value = v['Token']
+    #     del v['Token']
+    #     v["token"] = value
+    #     return v
 
 

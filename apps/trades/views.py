@@ -1,52 +1,26 @@
 # -*- coding: utf-8 -*-
-import time, binascii, os, math, json
-
-from functools import wraps
-from apps.nosql_db import r_2
-from apps.utils import create_numbering
-from apps import create_jwt, login_required, parse_jwt
-from .validate import ShippingAddress, SubmitOrder
-from .models import (Orders, Portfolios, NFT_list, Comments,
-                     Portfolios_like, Shipping_address, User, Goods_se_details_sku)
-from flask import Blueprint, jsonify, request, g
-from pydantic import error_wrappers
+import json
+import math
+import time
 from datetime import timedelta, datetime
+
+from flask import Blueprint, jsonify, request, g
+from flask_pydantic_spec import Response as fp_Response
+
+from auth import login_required, parse_jwt
+from extension import swagger
+from nosql_db import r_2
+from utils import create_numbering, get_order_code
+from .models import (Orders, Shipping_address, User, Goods_se_details_sku)
+from .validate import ShippingAddress, SubmitOrder, Header, SubmitOrderQuery
 
 # 创建 “我的交易” 蓝图
 bp = Blueprint("trades", __name__)
 
 
-# 根据日期生成一个随机的支付订单号
-def get_order_code():
-    #  年月日时分秒+time.time()的后7位
-    order_no = str(time.strftime('%Y%m%d%H%M%S', time.localtime(time.time())) + str(time.time()).replace('.', '')[-7:])
-    return order_no
-
-
-# 用于约束接口必填数据key和必填项目的数据类型的装饰器
-def check_request2(one_dict):
-    def wrapper(func):
-        @wraps(func)
-        def decorate(*args, **kwargs):
-            X = request.json
-            for y in X:
-                print("X[y] 此时的值是：", type(X[y]))
-
-                if y in one_dict:
-                    try:
-                        assert type(X[y]) == one_dict[y]
-                    except Exception:
-                        return jsonify({"err": "验证失败,数据类型不匹配！！"})
-
-            return func(*args, **kwargs)
-
-        return decorate
-
-    return wrapper
-
-
 # 增加订单的接口
-@bp.route("/addToCart/<string:sku_id>/<string:sku_num>", methods=["GET", "POST"])
+@bp.get("/addToCart/<string:sku_id>/<string:sku_num>")
+@swagger.validate(resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['trades'])
 def add_to_cart(sku_id, sku_num):
     uuid_ = request.headers.get("userTempId")
     token_ = request.headers.get('token')
@@ -186,7 +160,8 @@ def add_to_cart(sku_id, sku_num):
 
 
 # 查询购物车中订单的接口
-@bp.route("/cartList", methods=["GET", "POST"])
+@bp.get("/cartList")
+@swagger.validate(resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['trades'])
 def cart_list():
     x_ = request.headers.get("userTempId")
     y_ = request.headers.get('token')
@@ -211,7 +186,8 @@ def cart_list():
 
 
 # 取消订单的接口
-@bp.route("/deleteCart/<string:sku_id>", methods=["DELETE"])
+@bp.delete("/deleteCart/<string:sku_id>")
+@swagger.validate(resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['trades'])
 def delete_cart(sku_id):
     sku_id = int(sku_id)
     info = Orders.find_one({"connect_goods_se_sku_id": sku_id})
@@ -225,7 +201,8 @@ def delete_cart(sku_id):
 
 
 # 切换订单中商品选中状态的接口
-@bp.route("/checkCart/<string:sku_id>/<string:is_checked>", methods=["GET", "POST"])
+@bp.get("/checkCart/<string:sku_id>/<string:is_checked>")
+@swagger.validate(resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['trades'])
 def check_cart(sku_id, is_checked):
     sku_id = int(sku_id)
     is_checked = int(is_checked)
@@ -240,8 +217,9 @@ def check_cart(sku_id, is_checked):
 
 
 # 获取订单交易页信息的接口
-@bp.route("/auth/trade", methods=["GET", "POST"])
+@bp.get("/auth/trade")
 @login_required
+@swagger.validate(headers=Header, resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['trades'])
 def auth_trade():
     token_ = request.headers.get('token')
     username = g.username
@@ -296,16 +274,11 @@ def auth_trade():
 
 
 # 提交订单的接口
-@bp.route("/auth/submitOrder", methods=["GET", "POST"])
+@bp.post("/auth/submitOrder")
 @login_required
+@swagger.validate(headers=Header, query=SubmitOrderQuery, body=SubmitOrder,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['trades'])
 def submit_order():
-    try:
-        SubmitOrder(**request.get_json())
-    except error_wrappers.ValidationError as e:
-        print(e)
-        return e.json()
-
-    # print(request.get_json())
     trade_no = request.args.get("tradeNo")
     token_ = request.headers.get("token")
 
@@ -341,8 +314,9 @@ def submit_order():
 
 
 # 获取订单支付信息的接口
-@bp.route("/payment/weixin/createNative/<string:order_id>", methods=["GET", "POST"])
+@bp.get("/payment/weixin/createNative/<string:order_id>")
 @login_required
+@swagger.validate(headers=Header, resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['trades'])
 def order_payment(order_id):
     # 从redis中获取订单列表的总价格
     order_list = r_2.hget(order_id, "orderDetailList")
@@ -368,8 +342,9 @@ def order_payment(order_id):
 
 
 # 查询订单支付状态的接口
-@bp.route("/weixin/queryPayStatus/<string:order_id>", methods=["GET", "POST"])
+@bp.get("/weixin/queryPayStatus/<string:order_id>")
 @login_required
+@swagger.validate(headers=Header, resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['trades'])
 def pay_status(order_id):
     pay_info = r_2.hgetall(order_id)
 
@@ -393,8 +368,9 @@ def pay_status(order_id):
 
 
 # 在个人中心展示订单列表的接口
-@bp.route("/order/auth/<string:page>/<string:limit>", methods=["GET", "POST"])
+@bp.get("/order/auth/<string:page>/<string:limit>")
 @login_required
+@swagger.validate(headers=Header, resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['trades'])
 def center_order_list(page, limit):
     """
     :param page: 页码
@@ -461,164 +437,10 @@ def center_order_list(page, limit):
     })
 
 
-# 展示作品的接口（实现了简单的分页功能）
-@bp.route("/portfolios", methods=["GET", "POST"])
-def portfolios():
-    name = request.json.get("name")
-    page = request.json.get("page")
-
-    # 每页显示的条数
-    page_per = 5
-
-    if not page:
-        page = 1
-
-    if page < 0:
-        return jsonify({"show_status": "It's not ok !"})
-
-    limit_start = (page - 1) * page_per
-
-    if name:
-        result = list(Portfolios.find({"name": name}, {"_id": 0}).sort("id", 1).limit(page_per).skip(limit_start))
-        total = Portfolios.count_documents({"name": name})
-    else:
-        result = list(Portfolios.find({}, {"_id": 0}).sort("id", 1).limit(page_per).skip(limit_start))
-        total = Portfolios.count_documents({})
-
-    page_total = int(math.ceil(total / page_per))
-    show_status = "It's OK!"
-
-    print(result)
-    return jsonify({"datas": {"data_list": result,
-                              "name": name,
-                              "page": page,
-                              "page_per": page_per,
-                              "page_total": page_total,
-                              "show_status": show_status}})
-
-
-# 展示所有 nft 的接口（实现了简单的分页功能）
-@bp.route("/nft_list", methods=["GET", "POST"])
-def nft_list():
-    name = request.json.get("name")
-    page = request.json.get("page")
-
-    # 每页显示的条数
-    page_per = 5
-
-    if not page:
-        page = 1
-
-    if page < 0:
-        return jsonify({"show_status": "It's not ok !"})
-
-    limit_start = (page - 1) * page_per
-
-    if name:
-        result = list(NFT_list.find({"name": name}, {"_id": 0}).sort("id", 1).limit(page_per).skip(limit_start))
-        total = NFT_list.count_documents({"name": name})
-    else:
-        result = list(NFT_list.find({}, {"_id": 0}).sort("id", 1).limit(page_per).skip(limit_start))
-        total = NFT_list.count_documents({})
-
-    page_total = int(math.ceil(total / page_per))
-    show_status = "It's OK!"
-
-    print(result)
-    return jsonify({"datas": {"data_list": result,
-                              "name": name,
-                              "page": page,
-                              "page_per": page_per,
-                              "page_total": page_total,
-                              "show_status": show_status}})
-
-
-# 查看评论或添加评论的接口
-@bp.route("/get_comments", methods=["GET", "POST"])
-def get_comments():
-    if request.method == "GET":  # 查看评论
-        id = request.json.get("id")
-        portfolios_name = request.json.get("name")
-
-        print(portfolios_name)
-        # 根据作品名对应的 ObjectID 在评论集合里查找对应评论
-        Object_ID = Portfolios.find_one({"id": id, "name": portfolios_name})
-        print(Object_ID)
-        comments = list(Comments.find({"comment_por": Object_ID["_id"]}, {"_id": 0, "comment_por": 0}))
-        if comments:
-            return jsonify({"comments_": comments})
-        return jsonify({"msg": "抱歉，该作品暂时没有评论哦~"})
-
-    else:
-        portfolios_id = request.json.get("portfolios_id")
-        portfolios_name = request.json.get("portfolios_name")
-        Object_ID = Portfolios.find_one({"id": portfolios_id, "name": portfolios_name})
-
-        user_name = request.json.get("user_name")
-        image = request.json.get("image")
-        content = request.json.get("content")
-        comment_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        sub_comment = ""
-
-        # 实现自增长的 id
-        id_list = list(Comments.find().sort("id", -1))
-        id = id_list[0]["id"] + 1
-        info = {"id": id, "comment_por": Object_ID["_id"], "username": user_name, "image": image,
-                "content": content, "comment_time": comment_time, "sub_comment": sub_comment}
-        Comments.insert_one(info)
-
-        # return jsonify({})
-
-        return jsonify({"msg": "添加评论成功！"})
-
-
-# 点赞作品的接口
-@bp.route("/portfolios_like", methods=["GET", "POST"])
-def portfolios_like():
-    id_ = request.json.get("id")
-    portfolios_name = request.json.get("name")
-    username = request.json.get("username")
-
-    # 通过 ObjectID 查找对应的作品
-    Object_ID = Portfolios.find_one({"id": id_, "name": portfolios_name})
-    if Object_ID:
-        # 实现自增长的 id
-        id_list = list(Portfolios_like.find().sort("id", -1))
-        id = id_list[0]["id"] + 1
-
-        like_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        info = {
-            "id": id,
-            "comment_por": Object_ID["_id"],
-            "portfolios_name": portfolios_name,
-            "username": username,
-            "like_time": like_time
-        }
-        Portfolios_like.insert_one(info)
-
-        return jsonify({"msg": "点赞成功！"})
-    return jsonify({"err": "抱歉，未找到该作品~"})
-
-
-# 获取某个作品点赞总数的接口
-@bp.route("/get_portfolios_likes", methods=["GET", "POST"])
-def get_portfolios_likes():
-    id_ = request.json.get("id")
-    portfolios_name = request.json.get("name")
-    # 查找对应的作品的 ObjectID
-    Object_ID_ = Portfolios.find_one({"id": id_, "name": portfolios_name})
-    Object_ID = Object_ID_["_id"]
-
-    # 获取点赞总数
-    total = Portfolios_like.count_documents({"comment_por": Object_ID})
-    print(total)
-
-    return jsonify({"msg": "获取成功！", "total_likes": total})
-
-
 # 查看当前用户所有的收货地址的接口
-@bp.route("/userAddress/auth/findUserAddressList", methods=["GET", "POST"])
+@bp.get("/userAddress/auth/findUserAddressList")
 @login_required
+@swagger.validate(headers=Header, resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['trades'])
 def user_address_list():
     all_shipping_address = list(Shipping_address.find({"connect_username": g.username},
                                                       {"_id": 0}))
@@ -641,33 +463,29 @@ def user_address_list():
 # 添加收货地址信息
 @bp.route("/add_shipping_address", methods=["GET", "POST"])
 @login_required
+@swagger.validate(headers=Header, body=ShippingAddress,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['trades'])
 def add_shipping_address():
-    try:
-        ShippingAddress(**request.get_json())
-    except error_wrappers.ValidationError as e:
-        print(e)
-        return e.json()
+    # 首先获取该用户收货地址总数，看看是否超过6个
+    ship_address_count = Shipping_address.count_documents({"username": g.username})
+    all_ship_address = Shipping_address.count_documents({})
+    if ship_address_count > 5:
+        return jsonify({"err": "抱歉，你已经有6个收货地址了，不能再添加更多了"})
+    # 创建一个自增长id
+    if ship_address_count == 0:
+        id = all_ship_address + 1
     else:
-        # 首先获取该用户收货地址总数，看看是否超过6个
-        ship_address_count = Shipping_address.count_documents({"username": g.username})
-        all_ship_address = Shipping_address.count_documents({})
-        if ship_address_count > 5:
-            return jsonify({"err": "抱歉，你已经有6个收货地址了，不能再添加更多了"})
-        # 创建一个自增长id
-        if ship_address_count == 0:
-            id = all_ship_address + 1
-        else:
-            id_list = list(Shipping_address.find().sort("id", -1))
-            id = id_list[0]["id"] + 1
+        id_list = list(Shipping_address.find().sort("id", -1))
+        id = id_list[0]["id"] + 1
 
-        customer_name = request.json.get("customer_name")
-        shipping_address = request.json.get("shipping_address")
-        customer_number = request.json.get("customer_number")
+    customer_name = request.json.get("customer_name")
+    shipping_address = request.json.get("shipping_address")
+    customer_number = request.json.get("customer_number")
 
-        Shipping_address.insert_one({"id": id, "customer_name": customer_name,
-                                     "shipping_address": shipping_address,
-                                     "customer_number": customer_number,
-                                     "username": g.username})
+    Shipping_address.insert_one({"id": id, "customer_name": customer_name,
+                                 "shipping_address": shipping_address,
+                                 "customer_number": customer_number,
+                                 "username": g.username})
 
     return jsonify({"msg": "收货地址添加成功！！！"})
 
@@ -675,22 +493,18 @@ def add_shipping_address():
 # 修改收货地址信息
 @bp.route("/edit_shipping_address", methods=["GET", "POST"])
 @login_required
+@swagger.validate(headers=Header, body=ShippingAddress,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['trades'])
 def edit_shipping_address():
-    try:
-        ShippingAddress(**request.get_json())
-    except error_wrappers.ValidationError as e:
-        print(e)
-        return e.json()
-    else:
-        id = request.json.get("id")
-        user_address = Shipping_address.find_one({"id": id, "username": g.username})
-        if not user_address:
-            return jsonify({"err": "抱歉，该收货地址不存在！"})
+    id = request.json.get("id")
+    user_address = Shipping_address.find_one({"id": id, "username": g.username})
+    if not user_address:
+        return jsonify({"err": "抱歉，该收货地址不存在！"})
 
-        X = request.get_json()
+    X = request.get_json()
 
-        for k in X:
-            Shipping_address.update_one({"id": id, "username": g.username},
-                                        {"$set": {k: X[k]}})
+    for k in X:
+        Shipping_address.update_one({"id": id, "username": g.username},
+                                    {"$set": {k: X[k]}})
 
     return jsonify({"msg": "收货地址信息修改成功！"})

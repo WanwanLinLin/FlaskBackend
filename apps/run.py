@@ -10,7 +10,6 @@ from admin_file_ontroller import bp as admin_file_controller_bp
 from admin_category_management import bp as admin_category_management_bp
 from admin_spu_management import bp as admin_spu_management_bp
 from admin_sku_management import bp as admin_sku_management_bp
-# from extension import init_swagger
 from flask_cors import CORS
 from db import Base, engine
 from account import user_cli

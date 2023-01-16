@@ -2,7 +2,7 @@
 import re
 
 from typing import Optional
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, Field
 
 
 class ShippingAddress(BaseModel):
@@ -27,8 +27,17 @@ class ShippingAddress(BaseModel):
 
 class SubmitOrder(BaseModel):
     consignee: str
-    consigneeTel: str
+    consigneeTel: str = Field(min_length=11)
     deliveryAddress: str
     paymentWay: str
     orderComment: str
     orderDetailList: list
+
+
+class Header(BaseModel):
+    Token: str
+
+
+class SubmitOrderQuery(BaseModel):
+    tradeNo: str
+

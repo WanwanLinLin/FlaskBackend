@@ -1,19 +1,24 @@
 # -*- coding: utf-8 -*-
-from .validate import SaveAttrInfo
+from .validate import SaveAttrInfo, XApiKey
 from pydantic import error_wrappers
 from flask import Blueprint, request, jsonify
-from apps.auth import permission_required
-from apps.goods import Goods_se, Goods_se_attrs, Goods_se_details
-from apps.goods import CategoryListModel, SeCategoryListModel, ThCategoryListModel
+from auth import permission_required
+from extension import swagger
+from flask_pydantic_spec import Response as fp_Response
+from goods import Goods_se_attrs
+from goods import CategoryListModel, SeCategoryListModel, ThCategoryListModel
+from db import SessionLocal
 
 bp = Blueprint("admin_category_management", __name__)
-
+session = SessionLocal()
 
 # 获取商品一级分类的接口
-@bp.route("/getCategory1", methods=["GET", "POST"])
+@bp.get("/getCategory1")
 @permission_required
+@swagger.validate(headers=XApiKey,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage category'])
 def get_category1():
-    category1_info = CategoryListModel.query.all()
+    category1_info = session.query(CategoryListModel).all()
     category1_list = []
 
     for x_ in category1_info:
@@ -32,10 +37,12 @@ def get_category1():
 
 
 # 获取商品二级分类的接口
-@bp.route("/getCategory2/<int:category1_id>", methods=["GET", "POST"])
+@bp.get("/getCategory2/<int:category1_id>")
 @permission_required
+@swagger.validate(headers=XApiKey,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage category'])
 def get_category2(category1_id):
-    category2_info = SeCategoryListModel.query.filter(SeCategoryListModel.category_par == category1_id).all()
+    category2_info = session.query(SeCategoryListModel).filter(SeCategoryListModel.category_par == category1_id).all()
     category2_list = []
 
     for x_ in category2_info:
@@ -52,10 +59,12 @@ def get_category2(category1_id):
 
 
 # 获取商品三级分类的接口
-@bp.route("/getCategory3/<int:category2_id>", methods=["GET", "POST"])
+@bp.get("/getCategory3/<int:category2_id>")
 @permission_required
+@swagger.validate(headers=XApiKey,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage category'])
 def get_category3(category2_id):
-    category3_info = ThCategoryListModel.query.filter(ThCategoryListModel.category_par == category2_id).all()
+    category3_info = session.query(ThCategoryListModel).filter(ThCategoryListModel.category_par == category2_id).all()
     category3_list = []
 
     for x_ in category3_info:
@@ -72,8 +81,10 @@ def get_category3(category2_id):
 
 
 # 获取商品属性的接口
-@bp.route("/attrInfoList/<int:category1_id>/<int:category2_id>/<int:category3_id>", methods=["GET", "POST"])
+@bp.get("/attrInfoList/<int:category1_id>/<int:category2_id>/<int:category3_id>")
 @permission_required
+@swagger.validate(headers=XApiKey,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage category'])
 def get_attr_info_list(category1_id, category2_id, category3_id):
     category3_id = str(category3_id)
     data = []
@@ -103,15 +114,11 @@ def get_attr_info_list(category1_id, category2_id, category3_id):
 
 
 # 这个是添加属性或者修改属性的接口
-@bp.route("/saveAttrInfo", methods=["GET", "POST"])
+@bp.post("/saveAttrInfo")
 @permission_required
+@swagger.validate(headers=XApiKey, body=SaveAttrInfo,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage category'])
 def save_attr_info():
-    try:
-        SaveAttrInfo(**request.get_json())
-    except error_wrappers.ValidationError as e:
-        print(e)
-        return e.json()
-    # print(request.get_json())
     attr_name = request.json.get("attrName")
     attr_value_list_ = request.json.get("attrValueList")
     category_id = request.json.get("categoryId")
@@ -180,8 +187,10 @@ def save_attr_info():
 
 
 # 这是删除属性的接口
-@bp.route("/deleteAttr/<int:attr_id>", methods=["GET", "POST"])
+@bp.get("/deleteAttr/<int:attr_id>")
 @permission_required
+@swagger.validate(headers=XApiKey,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage category'])
 def delete_attr(attr_id):
     Goods_se_attrs.delete_one({"attrId": attr_id})
     return jsonify({

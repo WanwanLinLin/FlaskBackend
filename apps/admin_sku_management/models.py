@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from apps.nosql_db import client
+from nosql_db import client
 
 """
 存放sku信息的数据库

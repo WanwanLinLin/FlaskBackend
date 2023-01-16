@@ -15,3 +15,7 @@ class SaveSkuInfo(BaseModel):
     skuImageList: List[dict]
     skuAttrValueList: List[dict]
     skuSaleAttrValueList: List[dict]
+
+
+class XApiKey(BaseModel):
+    Xapikey: str

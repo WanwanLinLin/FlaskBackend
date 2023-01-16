@@ -11,3 +11,7 @@ class UpdateOrSaveSpuInfo(BaseModel):
     spuSaleAttrList: List[dict]
     tmId: int
     spuImageList: List[dict]
+
+
+class XApiKey(BaseModel):
+    Xapikey: str

@@ -2,9 +2,9 @@
 import jwt
 import datetime
 import functools
-from apps.nosql_db import r, r_3
+from nosql_db import r, r_3
 from jwt import exceptions
-from apps.error import ApiError
+from error import ApiError
 from functools import wraps
 from flask import g, request, current_app, jsonify
 

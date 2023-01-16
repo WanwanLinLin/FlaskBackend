@@ -1,18 +1,24 @@
 # -*- coding: utf-8 -*-
-import math, os
+import math
+import os
 
-from .models import Goods_trademark
-from pydantic import error_wrappers
-from apps.auth import permission_required
 from flask import Blueprint, jsonify, request
-from .validate import SaveTrademark, UpdateTrademark
+from pydantic import error_wrappers
+from flask_pydantic_spec import Response as fp_Response
+
+from extension import swagger
+from .models import Goods_trademark
+from auth import permission_required
+from .validate import SaveTrademark, UpdateTrademark, XApiKey
 
 bp = Blueprint("admin_trade_mark", __name__)
 
 
 # 一次性获取所有品牌的接口
-@bp.route("/baseTrademark/getTrademarkList", methods=["GET", "POST"])
+@bp.get("/baseTrademark/getTrademarkList")
 @permission_required
+@swagger.validate(headers=XApiKey,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage trade mark'])
 def get_trademark_list():
     trademark_list = list(Goods_trademark.find({}))
     data = []
@@ -31,8 +37,10 @@ def get_trademark_list():
 
 
 # 获取品牌总数的接口(需要分页)
-@bp.route("/baseTrademark/<string:page>/<string:limit>", methods=["GET", "POST"])
+@bp.get("/baseTrademark/<string:page>/<string:limit>")
 @permission_required
+@swagger.validate(headers=XApiKey,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage trade mark'])
 def base_trade_mark(page, limit):
     page = int(page)
     limit = int(limit)
@@ -72,15 +80,11 @@ def base_trade_mark(page, limit):
 
 
 # 添加品牌的接口
-@bp.route("/baseTrademark/save", methods=["POST"])
+@bp.post("/baseTrademark/save")
 @permission_required
+@swagger.validate(headers=XApiKey, body=SaveTrademark,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage trade mark'])
 def save_trademark():
-    try:
-        SaveTrademark(**request.get_json())
-    except error_wrappers.ValidationError as e:
-        print(e)
-        return e.json()
-
     tm_name = request.json.get("tmName")
     logo_url = request.json.get("logoUrl")
     id_list = list(Goods_trademark.find().sort("id", -1))
@@ -103,15 +107,11 @@ def save_trademark():
 
 
 # 这是更新品牌信息的接口
-@bp.route("/baseTrademark/update", methods=["PUT"])
+@bp.put("/baseTrademark/update")
 @permission_required
+@swagger.validate(headers=XApiKey, body=UpdateTrademark,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage trade mark'])
 def update_trademark():
-    try:
-        UpdateTrademark(**request.get_json())
-    except error_wrappers.ValidationError as e:
-        print(e)
-        return e.json()
-
     id = request.json.get("id")
     tm_name = request.json.get("tmName")
     logo_url = request.json.get("logoUrl")
@@ -128,8 +128,10 @@ def update_trademark():
 
 
 # 删除品牌的接口
-@bp.route("/baseTrademark/remove/<int:id>", methods=["DELETE"])
+@bp.delete("/baseTrademark/remove/<int:id>")
 @permission_required
+@swagger.validate(headers=XApiKey,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage trade mark'])
 def remove_trademark(id):
     trademark_info = Goods_trademark.find_one({"id": id})
     if not trademark_info:

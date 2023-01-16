@@ -21,3 +21,7 @@ class UpdateTrademark(BaseModel):
     id: int
     tmName: str
     logoUrl: str
+
+
+class XApiKey(BaseModel):
+    Xapikey: str

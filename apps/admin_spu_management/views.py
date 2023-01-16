@@ -1,19 +1,25 @@
 # -*- coding: utf-8 -*-
-import math, time, os
-from pydantic import error_wrappers
-from .validate import UpdateOrSaveSpuInfo
+import math
+import os
+
 from flask import Blueprint, request, jsonify
-from .models import Goods_se_sale_attrs, Goods_se_image_list, Goods_se_details_sku
-from apps.admin_trade_mark import Goods_trademark
-from apps.auth import permission_required
-from apps.goods import Goods_se, Goods_se_attrs, Goods_se_details
+from pydantic import error_wrappers
+from flask_pydantic_spec import Response as fp_Response
+
+from auth import permission_required
+from goods import Goods_se_details
+from .models import Goods_se_sale_attrs, Goods_se_image_list
+from .validate import UpdateOrSaveSpuInfo, XApiKey
+from extension import swagger
 
 bp = Blueprint("admin_spu_management", __name__)
 
 
 # 获取SPU列表的接口
-@bp.route("/product/<int:page>/<int:limit>", methods=["GET", "POST"])
+@bp.get("/product/<int:page>/<int:limit>")
 @permission_required
+@swagger.validate(headers=XApiKey,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage SPU'])
 def get_spu_list(page, limit):
     category3_id = request.args.get("category3Id")
     category3_id = str(category3_id)
@@ -59,8 +65,10 @@ def get_spu_list(page, limit):
 
 
 # 获取SPU基础属性的接口
-@bp.route("/product/baseSaleAttrList", methods=["GET", "POST"])
+@bp.get("/product/baseSaleAttrList")
 @permission_required
+@swagger.validate(headers=XApiKey,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage SPU'])
 def get_base_sale_attr_list():
     sale_attr_list = list(Goods_se_sale_attrs.find({}, {"_id": 0}))
 
@@ -73,8 +81,10 @@ def get_base_sale_attr_list():
 
 
 # 获取SPU基本信息的接口
-@bp.route("/product/getSpuById/<int:spu_id>", methods=["GET", "POST"])
+@bp.get("/product/getSpuById/<int:spu_id>")
 @permission_required
+@swagger.validate(headers=XApiKey,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage SPU'])
 def get_spu_by_id(spu_id):
     spu_info = Goods_se_details.find_one({"spuId": spu_id}, {"_id": 0})
     if not spu_info:
@@ -102,8 +112,10 @@ def get_spu_by_id(spu_id):
 
 
 # 获取SPU图片的接口
-@bp.route("/product/spuImageList/<int:spu_id>", methods=["GET", "POST"])
+@bp.get("/product/spuImageList/<int:spu_id>")
 @permission_required
+@swagger.validate(headers=XApiKey,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage SPU'])
 def get_spu_image_list(spu_id):
     spu_image_list = list(Goods_se_image_list.find({"spuId": spu_id}, {"_id": 0}))
 
@@ -116,15 +128,11 @@ def get_spu_image_list(spu_id):
 
 
 # 修改SPU信息的接口
-@bp.route("/product/updateSpuInfo", methods=["GET", "POST"])
+@bp.post("/product/updateSpuInfo")
 @permission_required
+@swagger.validate(headers=XApiKey, body=UpdateOrSaveSpuInfo,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage SPU'])
 def update_spu_info():
-    try:
-        UpdateOrSaveSpuInfo(**request.get_json())
-    except error_wrappers.ValidationError as e:
-        print(e)
-        return e.json()
-
     description = request.json.get("description")
     id_ = request.json.get("id")
     spu_name = request.json.get("spuName")
@@ -188,16 +196,11 @@ def update_spu_info():
 
 
 # 添加SPU信息的接口
-@bp.route("/product/saveSpuInfo", methods=["GET", "POST"])
+@bp.post("/product/saveSpuInfo")
 @permission_required
+@swagger.validate(headers=XApiKey, body=UpdateOrSaveSpuInfo,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage SPU'])
 def save_spu_info():
-    try:
-        UpdateOrSaveSpuInfo(**request.get_json())
-    except error_wrappers.ValidationError as e:
-        print(e)
-        return e.json()
-    # print(request.get_json())
-
     tm_id = request.json.get("tmId")
     spu_name = request.json.get("spuName")
     description = request.json.get("description")
@@ -272,8 +275,10 @@ def save_spu_info():
 
 
 # 删除相应SPU信息的接口
-@bp.route("/product/deleteSpu/<int:spu_id>", methods=["DELETE"])
+@bp.delete("/product/deleteSpu/<int:spu_id>")
 @permission_required
+@swagger.validate(headers=XApiKey,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage SPU'])
 def delete_spu(spu_id):
     # 删除Goods_details中的信息
     Goods_se_details.delete_one({"spuId": spu_id})

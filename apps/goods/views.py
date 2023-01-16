@@ -17,7 +17,7 @@ session = SessionLocal()
 
 # 返回所有类别列表数据(三级联动)的接口
 @bp.get("/getBaseCategoryList")
-# @swagger.validate(resp=Response(HTTP_200=None, HTTP_403=None), tags=['goods'])
+@swagger.validate(resp=Response(HTTP_200=None, HTTP_403=None), tags=['goods'])
 def get_base_category_list():
     first_list = session.query(CategoryListModel).all()
     data = []
@@ -46,6 +46,7 @@ def get_base_category_list():
         "message": "成功！",
         "ok": True,
         "data": data})
+
 
 # 展示商品列表的接口
 @bp.post("/list")
@@ -247,7 +248,8 @@ def list_():
 
 
 # 展示商品详情的接口
-@bp.route("/item/<int:sku_id>", methods=["GET", "POST"])
+@bp.get("/item/<int:sku_id>")
+@swagger.validate(resp=Response(HTTP_200=None, HTTP_403=None), tags=['goods'])
 def item_detail(sku_id):
     try:
         sku_info = Goods_se_details_sku.find_one({"id": sku_id}, {"_id": 0})

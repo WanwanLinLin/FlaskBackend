@@ -1,30 +1,26 @@
 # -*- coding: utf-8 -*-
 # -*- coding: utf-8 -*-
-import re
 import random
-import requests
+import re
 
-from apps import create_jwt, login_required
-from apps.nosql_db import r
-from apps.error import ApiError
-from .models import User
-from .validate import (LoginValidate, RegisterValidate, EditMaterial, EditPassword)
 from flask import Blueprint, jsonify, request, g
-from pydantic import error_wrappers
+from flask_pydantic_spec import Response as fp_Response
 
-# from flask_login import login_required, logout_user
+from auth import create_jwt, login_required
+from extension import swagger
+from nosql_db import r
+from .models import User
+from .validate import (LoginValidate, RegisterValidate, EditMaterial,
+                       EditPassword, ValToken)
 
 bp = Blueprint("users", __name__)
 
 
 # 登录
-@bp.route("/passport/login", methods=["GET", "POST"])
+@bp.post("/passport/login")
+@swagger.validate(body=LoginValidate,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['users'])
 def login():
-    try:
-        LoginValidate(**request.get_json())
-    except error_wrappers.ValidationError as e:
-        return e.json()
-
     username = request.json.get("username")
     password = request.json.get("password")
     user = User.find_one({"username": username, "password": password})
@@ -54,8 +50,10 @@ def login():
 
 
 # 用户登录成功后获取用户信息的接口
-@bp.route("/passport/auth/getUserInfo", methods=["GET", "POST"])
+@bp.get("/passport/auth/getUserInfo")
 @login_required
+@swagger.validate(headers=ValToken,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['users'])
 def get_user_info():
     username = g.username
     user = User.find_one({"username": username})
@@ -79,11 +77,11 @@ def get_user_info():
 
 
 # 用户退出登录后清除用户信息的接口
-@bp.route("/passport/logout", methods=["GET", "POST"])
+@bp.get("/passport/logout")
 @login_required
+@swagger.validate(headers=ValToken,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['users'])
 def logout():
-    username = g.username
-    # r.delete(username)
 
     return jsonify({
         "code": 200,
@@ -94,30 +92,27 @@ def logout():
 
 
 # 注册
-@bp.route("/passport/register", methods=["GET", "POST"])
+@bp.post("/passport/register")
+@swagger.validate(headers=ValToken, body=RegisterValidate,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['users'])
 def register():
-    try:
-        RegisterValidate(**request.get_json())
-    except error_wrappers.ValidationError as e:
-        print(e)
-        return e.json()
-    else:
-        username = request.json.get("username")
-        phone_number = request.json.get("phone")
-        password = request.json.get("password")
-        nick_name = request.json.get("nickName")
-        age = request.json.get("age")
-        wallet_address = request.json.get("wallet_address")
-        email = request.json.get("email")
+    username = request.json.get("username")
+    phone_number = request.json.get("phone")
+    password = request.json.get("password")
+    nick_name = request.json.get("nickName")
+    age = request.json.get("age")
+    wallet_address = request.json.get("wallet_address")
+    email = request.json.get("email")
 
-        # 创建一个自增长id
-        id_list = list(User.find().sort("id", -1))
-        id = id_list[0]["id"] + 1
-        info = {"id": id, "username": username,
-                "password": password, "name": nick_name,
-                "phone_number": phone_number, "age": age,
-                "wallet_address": wallet_address, "email": email}
-        User.insert_one(info)
+    # 创建一个自增长id
+    id_list = list(User.find().sort("id", -1))
+    id = id_list[0]["id"] + 1
+    info = {"id": id, "username": username,
+            "password": password, "name": nick_name,
+            "phone_number": phone_number, "age": age,
+            "wallet_address": wallet_address, "email": email}
+    User.insert_one(info)
+
     return jsonify({
         "code": 200,
         "message": "成功",
@@ -127,7 +122,9 @@ def register():
 
 
 # 获取注册验证码的接口
-@bp.route("/passport/sendCode/<string:phone>", methods=["GET", "POST"])
+@bp.get("/passport/sendCode/<string:phone>")
+@swagger.validate(headers=ValToken,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['users'])
 def send_code_phone(phone):
     ret = re.match(r'^1[356789]\d{9}$', phone)
     if not ret:
@@ -151,40 +148,38 @@ def send_code_phone(phone):
 
 
 # 修改用户资料
-@bp.route("/edit_material")
+@bp.put("/edit_material")
 @login_required
+@swagger.validate(headers=ValToken, body=EditMaterial,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['users'])
 def edit_material():
-    try:
-        EditMaterial(**request.get_json())
-        # print(request.get_json())
-        for k in request.get_json():
-            print(k)
-            print(request.get_json()[k])
-    except error_wrappers.ValidationError as e:
-        print(e)
-        return e.json()
-    else:
-        X = request.get_json()
-        for k in X:
-            User.update_one({"username": g.username},
-                            {"$set": {k: X[k]}})
+    info = request.get_json()
+    for k in info:
+        User.update_one({"username": g.username},
+                        {"$set": {k: info[k]}})
 
-    return jsonify({"msg": "用户信息修改成功!"})
+    return jsonify({
+                    "code": 200,
+                    "msg": "用户信息修改成功!",
+                    "data": None,
+                    "ok": True
+                    })
 
 
-@bp.route("/edit_password")
+@bp.put("/edit_password")
 @login_required
+@swagger.validate(headers=ValToken, body=EditPassword,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['users'])
 def edit_password():
-    try:
-        EditPassword(**request.get_json())
-    except error_wrappers.ValidationError as e:
-        print(e)
-        return e.json()
-    else:
-        password_new = request.json.get("password_new")
-        User.update_one({"username": g.username}, {"$set": {"password": password_new}})
+    password_new = request.json.get("password_new")
+    User.update_one({"username": g.username}, {"$set": {"password": password_new}})
 
-    return jsonify({"msg": "亲，密码修改成功！！"})
+    return jsonify({
+                    "code": 200,
+                    "msg": "亲，密码修改成功！！",
+                    "data": None,
+                    "ok": True
+                    })
 
 
 
