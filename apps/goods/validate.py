@@ -3,6 +3,9 @@ from enum import Enum
 from typing import Optional
 from pydantic import BaseModel, validator, Field
 from .models import Goods_se, CategoryListModel, SeCategoryListModel, ThCategoryListModel
+from db import SessionLocal
+
+session = SessionLocal()
 
 
 class VaListModel(BaseModel):
@@ -22,7 +25,7 @@ class VaListModel(BaseModel):
         # v 为 " " 的情况
         if not v:
             return v.title()
-        data = CategoryListModel.query.filter(CategoryListModel.id == int(v)).first()
+        data = session.query(CategoryListModel).filter(CategoryListModel.id == int(v)).first()
         if not data:
             raise ValueError("抱歉，该一级类目的Id不存在！")
         return v.title()
@@ -32,7 +35,7 @@ class VaListModel(BaseModel):
         # v 为 " " 的情况
         if not v:
             return v.title()
-        data = SeCategoryListModel.query.filter(SeCategoryListModel.id == int(v)).first()
+        data = session.query(SeCategoryListModel).filter(SeCategoryListModel.id == int(v)).first()
         if not data:
             raise ValueError("抱歉，该二级类目的Id不存在！")
         return v.title()
@@ -42,7 +45,7 @@ class VaListModel(BaseModel):
         # v 为 " " 的情况
         if not v:
             return v.title()
-        data = ThCategoryListModel.query.filter(ThCategoryListModel.id == int(v)).first()
+        data = session.query(ThCategoryListModel).filter(ThCategoryListModel.id == int(v)).first()
         if not data:
             raise ValueError("抱歉，该一级类目的Id不存在！")
         return v.title()
