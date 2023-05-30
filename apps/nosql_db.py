@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import pymongo, redis
+import pymongo
+import redis
 
 # 本地服务器
 client = pymongo.MongoClient("mongodb://localhost/", 27017)

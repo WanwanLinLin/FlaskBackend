@@ -49,5 +49,5 @@ if __name__ == '__main__':
         r_3.setex("Julia", 60 * 60 * 24 * 30 * 2, x_api_key)
         r_3.setex(x_api_key, 60 * 60 * 24 * 30 * 2, "Julia")
     except Exception as e:
-        current_app.logger.error(e)
+        # current_app.logger.error(e)
         session.rollback()

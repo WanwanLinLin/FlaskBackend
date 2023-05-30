@@ -4,6 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # 出租屋的mysql
+# SQLALCHEMY_DATABASE_URL = "mysql+pymysql://username:password@host:port/database_name"
 SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:2298315584@127.0.0.1:3306/sph_flask?charset=utf8"
 
 engine = create_engine(

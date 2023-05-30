@@ -19,7 +19,7 @@ bp = Blueprint("trades", __name__)
 
 
 # 增加订单的接口
-@bp.get("/addToCart/<string:sku_id>/<string:sku_num>")
+@bp.post("/addToCart/<string:sku_id>/<string:sku_num>")
 @swagger.validate(resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['trades'])
 def add_to_cart(sku_id, sku_num):
     uuid_ = request.headers.get("userTempId")
