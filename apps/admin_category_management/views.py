@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .validate import SaveAttrInfo, XApiKey
+from .validate import SaveAttrInfo, XApiKey, AddCategory
 from pydantic import error_wrappers
 from flask import Blueprint, request, jsonify
 from auth import permission_required
@@ -11,6 +11,85 @@ from db import SessionLocal
 
 bp = Blueprint("admin_category_management", __name__)
 session = SessionLocal()
+
+
+# 获取商品一级分类的接口
+@bp.get("/addCategory")
+@permission_required
+@swagger.validate(headers=XApiKey, query=AddCategory,
+                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage category'])
+def add_category():
+    category1 = request.args.get("category1")
+    category2 = request.args.get("category2")
+    category3 = request.args.get("category3")
+    if category1 and category2 and category3:
+        # 增加一个三级类目
+        try:
+            with session:
+                new_category3 = ThCategoryListModel(
+                    name=category3,
+                    category_par=session.query(SeCategoryListModel).filter(SeCategoryListModel.name == category2).first().id
+                )
+                session.add(new_category3)
+                session.commit()
+            return jsonify({
+                "code": 200,
+                "message": f"三级类目 {category3} 添加成功！",
+                "data": None,
+                "ok": True
+            })
+        except Exception as e:
+            return jsonify({
+                "code": 400,
+                "message": f"一级类目 {category1} 不存在或二级类目 {category2} 不存在！",
+                "data": None,
+                "ok": True
+            })
+    elif category1 and category2:
+        # 增加一个二级类目
+        try:
+            with session:
+                new_category2 = SeCategoryListModel(
+                    name=category2,
+                    category_par=session.query(CategoryListModel).filter(
+                        CategoryListModel.name == category1).first().id
+                )
+                session.add(new_category2)
+                session.commit()
+            return jsonify({
+                "code": 200,
+                "message": f"二级类目 {category2} 添加成功！",
+                "data": None,
+                "ok": True
+            })
+        except Exception as e:
+            return jsonify({
+                "code": 400,
+                "message": f"一级类目 {category1} 不存在！",
+                "data": None,
+                "ok": True
+            })
+
+    # 增加一个一级类目
+    try:
+        with session:
+            new_category1 = CategoryListModel(name=category1)
+            session.add(new_category1)
+            session.commit()
+        return jsonify({
+            "code": 200,
+            "message": f"一级类目 {category1} 添加成功！",
+            "data": None,
+            "ok": True
+        })
+    except Exception as e:
+        return jsonify({
+            "code": 500,
+            "message": "发生未知错误！",
+            "data": None,
+            "ok": True
+        })
+
 
 # 获取商品一级分类的接口
 @bp.get("/getCategory1")

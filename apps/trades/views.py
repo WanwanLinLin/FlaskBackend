@@ -190,7 +190,7 @@ def cart_list():
 @swagger.validate(resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['trades'])
 def delete_cart(sku_id):
     sku_id = int(sku_id)
-    info = Orders.find_one({"connect_goods_se_sku_id": sku_id})
+    info = Orders.find_one({"connect_goods_se_id": sku_id})
     Orders.delete_one(info)
     return jsonify({
         "code": 200,

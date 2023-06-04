@@ -14,3 +14,9 @@ class SaveAttrInfo(BaseModel):
 class XApiKey(BaseModel):
     Xapikey: str
 
+
+class AddCategory(BaseModel):
+    category1: str = None
+    category2: str = None
+    category3: str = None
+
