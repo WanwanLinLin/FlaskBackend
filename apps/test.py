@@ -1,20 +1,17 @@
-# nothing to do
-import string, random
-from account.models import AdminUser
+# encoding:utf-8
 from db import SessionLocal
-from nosql_db import r_3
-from flask import current_app
 
-# 生成一个随机的X-API-KEY用于验证后台管理人员登录
-def get_x_api_key():
-    s = string.ascii_letters.upper()
-    r = ["".join([random.choice(s) for _ in range(9)]) for _ in range(4)]
-    return f"{r[0]}-{r[1]}-{r[2]}-{r[3]}"
+session = SessionLocal()
+from goods import CategoryListModel, SeCategoryListModel, ThCategoryListModel
 
-try:
-    x_api_key = get_x_api_key()
-    r_3.setex("Julia", 60 * 60 * 24 * 30 * 2, x_api_key)
-    r_3.setex(x_api_key, 60 * 60 * 24 * 30 * 2, "Julia")
-except Exception as e:
-    # current_app.logger.error(e)
-    print(e)
+# with session:
+#     new_category3 = ThCategoryListModel(
+#         name="奶茶",
+#         category_par=session.query(SeCategoryListModel).filter(SeCategoryListModel.name == "美美的团").first().id
+#     )
+#     session.add(new_category3)
+#     session.commit()
+with session:
+    a = session.query(CategoryListModel).filter(CategoryListModel.name == "服装服饰").first()
+    if a:
+        print("yes")

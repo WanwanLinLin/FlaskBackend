@@ -16,7 +16,7 @@ class XApiKey(BaseModel):
 
 
 class AddCategory(BaseModel):
-    category1: str = None
-    category2: str = None
-    category3: str = None
+    category1Id: str = None
+    category2Id: str = None
+    category3Id: str = None
 

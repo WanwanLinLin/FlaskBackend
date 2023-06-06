@@ -19,13 +19,20 @@ session = SessionLocal()
 @swagger.validate(headers=XApiKey, query=AddCategory,
                   resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage category'])
 def add_category():
-    category1 = request.args.get("category1")
-    category2 = request.args.get("category2")
-    category3 = request.args.get("category3")
+    category1 = request.args.get("category1Id")
+    category2 = request.args.get("category2Id")
+    category3 = request.args.get("category3Id")
     if category1 and category2 and category3:
         # 增加一个三级类目
         try:
             with session:
+                if session.query(ThCategoryListModel).filter(ThCategoryListModel.name == category3).first():
+                    return jsonify({
+                        "code": 400,
+                        "message": f"三级类目 {category3} 已存在！",
+                        "data": None,
+                        "ok": True
+                    })
                 new_category3 = ThCategoryListModel(
                     name=category3,
                     category_par=session.query(SeCategoryListModel).filter(SeCategoryListModel.name == category2).first().id
@@ -49,6 +56,13 @@ def add_category():
         # 增加一个二级类目
         try:
             with session:
+                if session.query(SeCategoryListModel).filter(SeCategoryListModel.name == category2).first():
+                    return jsonify({
+                        "code": 400,
+                        "message": f"二级类目 {category2} 已存在！",
+                        "data": None,
+                        "ok": True
+                    })
                 new_category2 = SeCategoryListModel(
                     name=category2,
                     category_par=session.query(CategoryListModel).filter(
@@ -73,6 +87,13 @@ def add_category():
     # 增加一个一级类目
     try:
         with session:
+            if session.query(CategoryListModel).filter(CategoryListModel.name == category1).first():
+                return jsonify({
+                    "code": 400,
+                    "message": f"一级类目 {category1} 已存在！",
+                    "data": None,
+                    "ok": True
+                })
             new_category1 = CategoryListModel(name=category1)
             session.add(new_category1)
             session.commit()
@@ -88,7 +109,7 @@ def add_category():
             "message": "发生未知错误！",
             "data": None,
             "ok": True
-        })
+        }), 500
 
 
 # 获取商品一级分类的接口
