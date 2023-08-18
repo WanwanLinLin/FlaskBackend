@@ -38,7 +38,7 @@ def add_to_cart(sku_id, sku_num):
         connect_goods_se_sku_id = goods["id"]
         name = goods["skuName"]
         purchase_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        price = int(goods["price"])
+        price = float(goods["price"])
         payment = price * sku_num
         order_number = create_numbering(16)
         status = "To_Be_Delivered"
@@ -175,7 +175,7 @@ def cart_list():
         info = Orders.find({"userTempId": x_}, {"_id": 0, "userTempId": 0})
 
     for x in info:
-        x['price'] = int(x['price'])
+        x['price'] = float(x['price'])
         data[0]["cartInfoList"].append(x)
     return jsonify({
         "code": 200,
@@ -324,7 +324,7 @@ def order_payment(order_id):
     total_price = 0
 
     for x_ in order_list:
-        total_price += int(x_["orderPrice"])
+        total_price += float(x_["orderPrice"])
 
     data = {
         "codeUrl": "weixin://wxpay/bizpayurl?pr=P0aPBJK",

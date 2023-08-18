@@ -16,6 +16,7 @@ from .models import Goods_se_details_sku
 from .validate import SaveSkuInfo, XApiKey
 from extension import swagger
 from flask_pydantic_spec import Response as fp_Response
+from db import SessionLocal
 
 bp = Blueprint("admin_sku_management", __name__)
 
@@ -118,8 +119,12 @@ def save_sku_info():
         })
 
     # 5.反向查询得出对应的category2Id和category1Id以及查出tmName
-    category2_id = ThCategoryListModel.query.filter(ThCategoryListModel.id == int(category3_id)).first().category_par
-    category1_id = SeCategoryListModel.query.filter(SeCategoryListModel.id == category2_id).first().category_par
+    # category2_id = ThCategoryListModel.query.filter(ThCategoryListModel.id == int(category3_id)).first().category_par
+    # category1_id = SeCategoryListModel.query.filter(SeCategoryListModel.id == category2_id).first().category_par
+    session = SessionLocal()
+    with session:
+        category2_id = session.query(ThCategoryListModel).filter(ThCategoryListModel.id == int(category3_id)).first().category_par
+        category1_id = session.query(SeCategoryListModel).filter(SeCategoryListModel.id == category2_id).first().category_par
     tm_name = Goods_trademark.find_one({"id": tm_id}, {"_id": 0})["tmName"]
 
     # 6.整合数据

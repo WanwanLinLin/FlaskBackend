@@ -11,6 +11,7 @@ from goods import Goods_se_details
 from .models import Goods_se_sale_attrs, Goods_se_image_list
 from .validate import UpdateOrSaveSpuInfo, XApiKey
 from extension import swagger
+from utils import create_numbering, TRADEMARK_PATH, CATEGORY_PATH
 
 bp = Blueprint("admin_spu_management", __name__)
 
@@ -287,7 +288,7 @@ def delete_spu(spu_id):
     image_name_list = list(Goods_se_image_list.find({"spuId": spu_id}, {"_id": 0}))
     for x_ in image_name_list:
         image_name = x_["imgUrl"].split("/")[-1]
-        os.remove(f"D:/github_projects/FlaskProject/static/category_image/{image_name}")
+        os.remove(f"{CATEGORY_PATH}/{image_name}")
     Goods_se_image_list.delete_many({"spuId": spu_id})
 
     return jsonify({

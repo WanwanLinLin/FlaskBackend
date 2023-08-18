@@ -10,6 +10,7 @@ from extension import swagger
 from .models import Goods_trademark
 from auth import permission_required
 from .validate import SaveTrademark, UpdateTrademark, XApiKey
+from utils import create_numbering, TRADEMARK_PATH, CATEGORY_PATH
 
 bp = Blueprint("admin_trade_mark", __name__)
 
@@ -81,9 +82,9 @@ def base_trade_mark(page, limit):
 
 # 添加品牌的接口
 @bp.post("/baseTrademark/save")
-@permission_required
-@swagger.validate(headers=XApiKey, body=SaveTrademark,
-                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage trade mark'])
+# @permission_required
+# @swagger.validate(headers=XApiKey, body=SaveTrademark,
+#                   resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['admin manage trade mark'])
 def save_trademark():
     tm_name = request.json.get("tmName")
     logo_url = request.json.get("logoUrl")
@@ -146,7 +147,7 @@ def remove_trademark(id):
     Goods_trademark.delete_one({"id": id})
     # 删除品牌对应的图片
     image_name = trademark_info["logoUrl"].split("/")[-1]
-    os.remove(f"D:/github_projects/FlaskProject/static/trademark/{image_name}")
+    os.remove(f"{TRADEMARK_PATH}/{image_name}")
     return jsonify({
         "code": 200,
         "message": "删除品牌成功!",
