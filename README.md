@@ -33,4 +33,13 @@
     ...
 
 
+欢迎向我私信：
+B站
+![image](https://github.com/WanwanLinLin/FlaskBackend/blob/develop/erweima/B%E7%AB%99.jpg?raw=true)
 
+抖音
+![image](https://github.com/WanwanLinLin/FlaskBackend/blob/develop/erweima/%E6%8A%96%E9%9F%B3.jpg?raw=true)
+
+
+
+![image](D:/TyporaImages/shopcart.png)
