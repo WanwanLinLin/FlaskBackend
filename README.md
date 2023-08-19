@@ -40,6 +40,3 @@ B站
 抖音
 ![image](https://github.com/WanwanLinLin/FlaskBackend/blob/develop/erweima/%E6%8A%96%E9%9F%B3.jpg?raw=true)
 
-
-
-![image](D:/TyporaImages/shopcart.png)
