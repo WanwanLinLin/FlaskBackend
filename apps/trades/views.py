@@ -391,13 +391,13 @@ def center_order_list(page, limit):
         order_detail_list = json.loads(user_order["orderDetailList"])
         records.append({
             "id": i,
-            "consignee": json.loads(user_order["consignee"]),
-            "consigneeTel": json.loads(user_order["consigneeTel"]),
+            "consignee": json.loads(user_order["consignee"]) if "consignee" in user_order else "xxxxxxxx",
+            "consigneeTel": json.loads(user_order["consigneeTel"]) if "consigneeTel" in user_order else "xxxxxxx",
             "totalAmount": sum([int(x_["orderPrice"]) for x_ in order_detail_list]),
             "orderStatus": "UNPAID",
             "userId": user_id,
             "paymentWay": json.loads(user_order["paymentWay"]),
-            "deliveryAddress": json.loads(user_order["deliveryAddress"]),
+            "deliveryAddress": json.loads(user_order["deliveryAddress"]) if "deliveryAddress" in user_order else "xxxxxxx",
             "orderComment": json.loads(user_order["orderComment"]),
             "outTradeNo": get_order_code(),
             "tradeBody": [x_["skuName"] for x_ in order_detail_list][0],
@@ -461,7 +461,7 @@ def user_address_list():
 
 
 # 添加收货地址信息
-@bp.route("/add_shipping_address", methods=["GET", "POST"])
+@bp.post("/addShippingAddress")
 @login_required
 @swagger.validate(headers=Header, body=ShippingAddress,
                   resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['trades'])
@@ -480,18 +480,20 @@ def add_shipping_address():
 
     customer_name = request.json.get("customer_name")
     shipping_address = request.json.get("shipping_address")
-    customer_number = request.json.get("customer_number")
+    customer_number = request.json.get("phone_number")
 
     Shipping_address.insert_one({"id": id, "customer_name": customer_name,
                                  "shipping_address": shipping_address,
                                  "customer_number": customer_number,
-                                 "username": g.username})
+                                 "username": g.username,
+                                 "connect_username": g.username,
+                                 "isDefault": 0 })
 
-    return jsonify({"msg": "收货地址添加成功！！！"})
+    return jsonify({"code": 200, "msg": "收货地址添加成功！！！", "data": None})
 
 
 # 修改收货地址信息
-@bp.route("/edit_shipping_address", methods=["GET", "POST"])
+@bp.post("/editShippingAddress")
 @login_required
 @swagger.validate(headers=Header, body=ShippingAddress,
                   resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['trades'])

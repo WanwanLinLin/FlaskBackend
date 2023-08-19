@@ -8,8 +8,7 @@ from pydantic import BaseModel, validator, Field
 class ShippingAddress(BaseModel):
     customer_name: Optional[str]
     shipping_address: Optional[str]
-    customer_number: Optional[int]
-    id: Optional[int]
+    phone_number: Optional[int]
 
     @validator("customer_name")
     def val_customer_name(cls, v):
@@ -17,7 +16,7 @@ class ShippingAddress(BaseModel):
             raise ValueError("抱歉，用户名过长或过短！")
         return v.title()
 
-    @validator("customer_number")
+    @validator("phone_number")
     def val_customer_number(cls, v):
         ret = re.match(r'^1[356789]\d{9}$', str(v))
         if not ret:
@@ -26,9 +25,9 @@ class ShippingAddress(BaseModel):
 
 
 class SubmitOrder(BaseModel):
-    consignee: str
-    consigneeTel: str = Field(min_length=11)
-    deliveryAddress: str
+    consignee: str = None
+    consigneeTel: str = Field(min_length=11, default=None)
+    deliveryAddress: str = None
     paymentWay: str
     orderComment: str
     orderDetailList: list

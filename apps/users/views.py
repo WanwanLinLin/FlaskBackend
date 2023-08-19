@@ -65,7 +65,7 @@ def get_user_info():
         "name": user["username"],
         "phoneNum": user["phone_number"],
         "email": user["email"],
-        "headImg": user["headImg"],
+        "headImg": "http://127.0.0.1:8000/static/head_image/BluSky.png",
         "userLevel": "1"
     }
     return jsonify({
@@ -93,8 +93,7 @@ def logout():
 
 # 注册
 @bp.post("/passport/register")
-@swagger.validate(headers=ValToken, body=RegisterValidate,
-                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['users'])
+@swagger.validate(body=RegisterValidate, resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['users'])
 def register():
     username = request.json.get("username")
     phone_number = request.json.get("phone")
@@ -123,8 +122,7 @@ def register():
 
 # 获取注册验证码的接口
 @bp.get("/passport/sendCode/<string:phone>")
-@swagger.validate(headers=ValToken,
-                  resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['users'])
+@swagger.validate(resp=fp_Response(HTTP_200=None, HTTP_403=None), tags=['users'])
 def send_code_phone(phone):
     ret = re.match(r'^1[356789]\d{9}$', phone)
     if not ret:

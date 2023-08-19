@@ -8,19 +8,29 @@
 
 
 尚品汇，启动！(方式)：
-
-    1.准备好Python虚拟环境，推荐miniconda
-    2.安装依赖项：pip install -r requirements.txt
-    3.准备好 mysql, mongo, redis 数据库，其中mysql，要事先创建一个数据库，
+    
+    1. git clone -b develop https://github.com/WanwanLinLin/FlaskBackend.git    
+    
+    2.准备好Python虚拟环境，推荐 miniconda
+    
+    3.安装依赖项：pip install -r requirements.txt
+    
+    4.准备好 mysql, mongo, redis 数据库，其中mysql，要事先创建一个数据库，
     运行项目会自动创建表，数据库配置细节详见根目录下的db.py和nosql_db.py
-    4.命令行进入app目录下，运行 python run.py 即可成功启动项目
+    
+    5. cd ./apps
+    
+    6.运行 python get_an_admin.py , 创建一名1级管理员，
+      账号：admin
+      密码：admin
+    
+    7.运行 python run.py 即可成功启动项目
 
 
 待优化事项：
-    
-    1.文件上传接口可能有点问题
-    2.商品搜索建议自行添加elasticsearch进行优化
+
+    1.商品搜索建议自行添加elasticsearch进行优化
     ...
 
-    
-    
+
+
